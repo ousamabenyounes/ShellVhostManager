@@ -1,4 +1,4 @@
-vhostShellManager
+LampBasicsManager
 =================
 
-This script helps you to manage LAMP basic needs (virtualHost, Ftp users, Mysql Database)
+This script helps you managing LAMP basic needs (virtualHost, Ftp users, Mysql Database)
