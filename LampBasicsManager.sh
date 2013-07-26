@@ -8,11 +8,11 @@
 #================================================================================
 
 
-APACHE_PORT="80"
 WWW="www"
 APACHE_WEB_DIR="/var/www/"
-PUBDIR="${SITEDIR}/public"
+APACHE_LOG_DIR="/var/log/apache2/"
 APACHEGRP="www-data"
+
 
 # Print help message
 usage () {
@@ -34,6 +34,7 @@ create_dir () {
     else
         echo "[INFO] Creating directory: $DIR"
         mkdir -p $DIR
+	chown -R "$APACHEGRP:$APACHEGRP" $DIR	
     fi
 }
 
@@ -43,14 +44,14 @@ create_vhost_directories () {
 
     DOMAINS=$1
     PROJECT=$2
-    WWW_ROOT_DIR=$APACHE_WEB_DIR
     
     # Check if this web dir belongs to a project directory (then create it)
     if [ "$PROJECT" != "" ]; then
 	PROJECT="$PROJECT/"
-	WWW_ROOT_DIR=$APACHE_WEB_DIR$PROJECT
-	create_dir $WWW_ROOT_DIR
-	create_dir
+	APACHE_WEB_DIR=$APACHE_WEB_DIR$PROJECT
+        APACHE_LOG_DIR=$APACHE_LOG_DIR$PROJECT
+	create_dir $APACHE_WEB_DIR
+	create_dir $APACHE_LOG_DIR
     fi
     
     # Parse all given domains
@@ -61,24 +62,26 @@ create_vhost_directories () {
 	SITE="$HOST.$i"
 	ALIAS="$ALIAS $WWW.$SITE $SITE"
     }
-    DEFAULT_SITE="$HOST.$1"
-    create_dir $WWW_ROOT_DIR$DEFAULT_SITE
-    
-    exit 1
-    # Create site vhost file
-    echo "Creating virtualhost file"
-    cat vhost.tmpl | sed "s/\${HOSTNAME}/${HOSTNAME}/" | sed "s|\${PUBDIR}|$PUBDIR|" | sed "s|\${LOGDIR}|${LOGDIR}|" > "/tmp/${HOSTNAME}"
-    sudo mv "/tmp/${HOSTNAME}" "/etc/apache2/sites-available/${HOSTNAME}"
 
-    # Enable site
-    echo "Enabling site."
-    sudo a2ensite $HOSTNAME
+    # Create Default Site web & log directories
+    DEFAULT_SITE="$HOST.$1"
+    create_dir $APACHE_WEB_DIR$DEFAULT_SITE    
+    create_dir $APACHE_LOG_DIR$DEFAULT_SITE
+
+   
+    # Create site vhost file
+    echo "[INFO]Creating virtualhost file: $DEFAULT_SITE"
+    
+    cat vhost.tpl | sed "s/\${HOST}/${DEFAULT_SITE}/"  | sed "s|\${ALIAS}|$ALIAS|"  | sed "s|\${APACHE_LOG_DIR}|$APACHE_LOG_DIR|" | sed "s|\${APACHE_WEB_DIR}|${APACHE_WEB_DIR}|" > "/tmp/${DEFAULT_SITE}"
+        
+    sudo mv "/tmp/${DEFAULT_SITE}" "/etc/apache2/sites-available/${DEFAULT_SITE}"
+    sudo a2ensite $DEFAULT_SITE
 
     # Add site to hosts file
     #sudo $(cat "127.0.0.1 ${HOSTNAME}" >> /etc/hosts)
 
     # Restart webserver
-    /etc/init.d/apache2 restart
+    sudo /etc/init.d/apache2 reload
 }
 
 

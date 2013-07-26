@@ -1,6 +1,7 @@
 <VirtualHost *:80>
         ServerName ${HOST}
-        DocumentRoot ${ROOTDIR}${HOST}
+	ServerAlias ${ALIAS}
+        DocumentRoot ${APACHE_WEB_DIR}${HOST}
         
         ErrorLog ${APACHE_LOG_DIR}${HOST}/error.log
 
@@ -8,5 +9,5 @@
         # alert, emerg.
         LogLevel warn
 
-        CustomLog ${APACHE_LOG_DIR}${HOST}access.log combined
+        CustomLog ${APACHE_LOG_DIR}${HOST}/access.log combined
 </VirtualHost>
