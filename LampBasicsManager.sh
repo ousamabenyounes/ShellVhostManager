@@ -12,6 +12,8 @@ WWW="www"
 APACHE_WEB_DIR="/var/www/"
 APACHE_LOG_DIR="/var/log/apache2/"
 APACHEGRP="www-data"
+APACHE_WEB_USR="$APACHEGRP:$APACHEGRP"
+APACHE_LOG_USR="root:root"
 
 
 # Print help message
@@ -20,6 +22,7 @@ usage () {
     echo "  -H: Host ."
     echo "  -p: Project name."
     echo "  -d: Domains(fr|com|net)."
+    echo "  -u: User:Group apache owner"    
     echo "  -h: Print this Help."
 
     exit 1;
@@ -28,13 +31,14 @@ usage () {
 # Create a directory
 create_dir () {
     DIR=$1
+    USER_GROUP=$2
     
     if [ -d "$DIR" ]; then
 	echo "[INFO] Directory allready exists: $DIR"
     else
         echo "[INFO] Creating directory: $DIR"
         mkdir -p $DIR
-	chown -R "$APACHEGRP:$APACHEGRP" $DIR	
+	chown -R $USER_GROUP $DIR	
     fi
 }
 
@@ -44,14 +48,15 @@ create_vhost_directories () {
 
     DOMAINS=$1
     PROJECT=$2
+    APACHE_WEB_USE=$3
     
     # Check if this web dir belongs to a project directory (then create it)
-    if [ "$PROJECT" != "" ]; then
+    if [ "$PROJECT" != "" ]; then	
 	PROJECT="$PROJECT/"
-	APACHE_WEB_DIR=$APACHE_WEB_DIR$PROJECT
-        APACHE_LOG_DIR=$APACHE_LOG_DIR$PROJECT
-	create_dir $APACHE_WEB_DIR
-	create_dir $APACHE_LOG_DIR
+	APACHE_WEB_DIR=$APACHE_WEB_DIR$PROJECT      
+	APACHE_LOG_DIR=$APACHE_LOG_DIR$PROJECT	
+	create_dir $APACHE_WEB_DIR "$APACHE_WEB_USR"
+	create_dir $APACHE_LOG_DIR "$APACHE_LOG_USR"
     fi
     
     # Parse all given domains
@@ -65,8 +70,9 @@ create_vhost_directories () {
 
     # Create Default Site web & log directories
     DEFAULT_SITE="$HOST.$1"
-    create_dir $APACHE_WEB_DIR$DEFAULT_SITE    
-    create_dir $APACHE_LOG_DIR$DEFAULT_SITE
+
+    create_dir $APACHE_WEB_DIR$DEFAULT_SITE $APACHE_WEB_USR
+    create_dir $APACHE_LOG_DIR$DEFAULT_SITE $APACHE_LOG_USR
 
    
     # Create site vhost file
@@ -106,11 +112,12 @@ fi
 
 # ------------------------------------------------------------------------------ #
 # Parsing all parameters
-while getopts ":H:d:h:p:" opt; do
+while getopts ":H:d:h:p:u:" opt; do
   case "$opt" in
     H)  HOST="$OPTARG";;
     d)  DOMAINS="$OPTARG";;
     p)  PROJECT="$OPTARG";;
+    u)  APACHE_WEB_USR="$OPTARG";;
 
     h)  # print usage
         usage
@@ -127,20 +134,6 @@ while getopts ":H:d:h:p:" opt; do
   esac
 done
 
-
-
-# Parse all given domains
-#var=$(echo $DOMAINS | awk -F"|" '{print $1,$2,$3}')
-#set -- $var
-#for i in $*
-#{
-#  SITE="$HOST.$i"
-  #ALIAS="$ALIAS $WWW.$site $site"
-#}
-
-#default_site="$HOST.$1"
-
-
-create_vhost_directories $DOMAINS $PROJECT
+create_vhost_directories $DOMAINS $PROJECT 
 
 
