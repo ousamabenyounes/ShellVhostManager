@@ -16,6 +16,7 @@ Usage: LampBasicsManager.sh -H -p -d -h -u
 $ LampBasicsManager.sh -p projectname -H api.projectname -d "fr|com|tk" -u "www-data:www-data" 
 
 First This will create "/var/www/projectname/api.projectname" directory (also create log directories)
+
 Then the apache virutalHost is created and enable (a2ensite).
 Apache is restarted.
 
