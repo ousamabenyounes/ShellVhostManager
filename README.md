@@ -4,7 +4,7 @@ ShellVhostManager
 This shell script helps you managing LAMP basic needs (virtualHost, Ftp users, Mysql Database)
 
 
-Usage: LampBasicsManager.sh -H -p -d -h -u
+Usage: ShellVhostManager.sh -H -p -d -h -u
   -H: Host .
   -p: Project name. (if you want to group others host on the same project directory)
   -d: Domains(fr|com|net). (it activates aliases)
@@ -13,7 +13,7 @@ Usage: LampBasicsManager.sh -H -p -d -h -u
 
 
 
-$ LampBasicsManager.sh -p projectname -H api.projectname -d "fr|com|tk" -u "www-data:www-data" 
+$ ShellVhostManager.sh -p projectname -H api.projectname -d "fr|com|tk" -u "www-data:www-data" 
 
 First This will create "/var/www/projectname/api.projectname" directory (also create log directories)
 
