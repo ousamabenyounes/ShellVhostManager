@@ -1,7 +1,7 @@
 LampBasicsManager
 =================
 
-This script helps you managing LAMP basic needs (virtualHost, Ftp users, Mysql Database)
+This shell script helps you managing LAMP basic needs (virtualHost, Ftp users, Mysql Database)
 
 
 Usage: LampBasicsManager.sh -H -p -d -h -u
