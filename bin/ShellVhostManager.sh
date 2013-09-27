@@ -27,13 +27,14 @@ VHOST_CONF=""
 WP_ADMIN_EMAIL=""
 MAIN_HOST=""
 DEFAULT_SITE=""
-
+WP_CREATE=""
+PS_CREATE=""
 
 # ************************************************************** #
 # Print help message
 
 usage () {
-    echo "Usage: lampManager.sh -H -p -d -u -h -f -m -w -l "
+    echo "Usage: lampManager.sh -H -p -d -u -h -f -m -w -l -s"
     echo "  -H: Host ."
     echo "  -p: Project name."
     echo "  -d: Domains(fr|com|net)."
@@ -42,7 +43,8 @@ usage () {
     echo "  -f: Ftp User Name (will generate user pwd)"
     echo "  -m: Mysql username (will generate user pwd) DB name will be the host name"
     echo "  -l: Passwords length. (default 10 chars)"
-    echo "  -w: (Will Install Wordpress) "
+    echo "  -w: (Will Install Wordpress) "  
+    echo "  -s: (Will Install Prestashop) "
 
     exit 1;
 }
@@ -114,18 +116,29 @@ check_existing_inf() {
 
 
 
+move_cms_tmp_to_vhost_dir () {
+    
+    CMS=$1
+
+    launch_cmd "mv $CMS/* $APACHE_WEB_DIR$MAIN_HOST"
+    launch_cmd "sudo chown -R $FTP_USR:$FTP_GRP $APACHE_WEB_DIR$DEFAULT_SITE"
+}
+
+
+
+
 # ************************************************************** #
 # Download Prestashop v1.5.5.0 and copy file to the vhost dir
 
 install_prestashop() {
     
-    show_title "Installing wordpress latest version"
+    show_title "Installing prestashop V1.5.5.0"
     launch_cmd "cd /tmp"
     launch_cmd "wget http://www.prestashop.com/download/prestashop_1.5.5.0.zip"
     launch_cmd "unzip prestashop_1.5.5.0.zip"
-
+    
+    move_cms_tmp_to_vhost_dir "prestashop"
 }
-
 
 
 # ************************************************************** #
@@ -137,8 +150,9 @@ install_wp() {
     launch_cmd "cd /tmp"
     launch_cmd "wget http://wordpress.org/latest.tar.gz"
     launch_cmd "tar xvzf latest.tar.gz"
-    launch_cmd "mv wordpress/* $APACHE_WEB_DIR$MAIN_HOST"
-    launch_cmd "sudo chown -R $FTP_USR:$FTP_GRP $APACHE_WEB_DIR$DEFAULT_SITE"
+    #launch_cmd "mv wordpress/* $APACHE_WEB_DIR$MAIN_HOST"
+    #launch_cmd "sudo chown -R $FTP_USR:$FTP_GRP $APACHE_WEB_DIR$DEFAULT_SITE"
+    move_cms_tmp_to_vhost_dir "wordpress"
     
     read -e -p "[WP] Enter your Blog Title:" -i $DEFAULT_SITE BLOG_TITLE
     read -e -p "[WP] Enter your Blog Admin Email:" ADMIN_EMAIL
@@ -228,7 +242,7 @@ fi
 # ------------------------------------------------------------------------------ #
 # Parsing all parameters
 
-while getopts ":H:d:p:u:f:m:l:w:h:" opt; do
+while getopts ":H:d:p:u:f:m:l:w:s:h:" opt; do
   case "$opt" in
     H)  HOST="$OPTARG";;
     d)  DOMAINS="$OPTARG";;
@@ -238,6 +252,7 @@ while getopts ":H:d:p:u:f:m:l:w:h:" opt; do
     m)  MYSQL_USR="$OPTARG";;
     l)  PWD_LENGHT="$OPTARG";;
     w)  WP_CREATE=1;;
+    s)  PS_CREATE=1;;
 
     h)  # print usage
         usage
@@ -258,17 +273,18 @@ done
 create_vhost_directories $DOMAINS $PROJECT 
 
 if [ "$FTP_USR" != "" ]; then
-    echo "CREATE FTP CONF"
     create_ftp_user $FTP_USR
 fi
 if [ "$MYSQL_USR" != "" ]; then
-    echo "CREATE MYSQL CONF"
     create_mysql_user $MYSQL_USR $HOST
 fi
 if [ "$WP_CREATE" != "" ]; then
-    echo "CREATE WORDPRESS CONF"
     install_wp 
 fi
+if [ "$PS_CREATE" != "" ]; then
+    install_prestashop
+fi
 
-
+echo "create:::$PS_CREATE"
+exit
 echo $VHOST_CONF
