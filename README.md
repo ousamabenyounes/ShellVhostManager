@@ -4,12 +4,16 @@ ShellVhostManager
 This shell script helps you managing LAMP basic needs (virtualHost, Ftp users, Mysql Database)
 
 
-Usage: ShellVhostManager.sh -H -p -d -h -u
+Usage: ShellVhostManager.sh -H -d -p -f -m -l -c -v -h
   -H: Host .
-  -p: Project name. (if you want to group others host on the same project directory)
-  -d: Domains(fr|com|net). (it activates aliases)
-  -u: User:Group apache owner (If you need to do a chown after vhost creation)
+  -p: Project name.
+  -d: Domains(fr|com|net).
   -h: Print this Help.
+  -f: Ftp User Name (will generate user pwd)
+  -m: Mysql username (will generate user pwd) DB name will be the host name
+  -l: Passwords length. (default 10 chars)
+  -c: CMS/Framework to install (allowed values are: wordpress, prestashop, sf2)
+  -v: CMS/Framework Version (By Default last version is allready set)
 
 
 

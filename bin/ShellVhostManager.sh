@@ -27,24 +27,27 @@ VHOST_CONF=""
 WP_ADMIN_EMAIL=""
 MAIN_HOST=""
 DEFAULT_SITE=""
-WP_CREATE=""
-PS_CREATE=""
+CMS="prestashop"
+CMS_VERSION="LASTVERSION"
+PRESTASHOP_LASTVERSION="1.5.5.0"
+WORDPRESS_LASTVERSION="latest"
+
 
 # ************************************************************** #
 # Print help message
 
 usage () {
-    echo "Usage: lampManager.sh -H -p -d -u -h -f -m -w -l -s"
+    
+    echo "Usage: ShellVhostManager.sh -H -d -p -f -m -l -c -v -h"
     echo "  -H: Host ."
     echo "  -p: Project name."
     echo "  -d: Domains(fr|com|net)."
-    echo "  -u: User:Group apache owner"    
     echo "  -h: Print this Help."
     echo "  -f: Ftp User Name (will generate user pwd)"
     echo "  -m: Mysql username (will generate user pwd) DB name will be the host name"
     echo "  -l: Passwords length. (default 10 chars)"
-    echo "  -w: (Will Install Wordpress) "  
-    echo "  -s: (Will Install Prestashop) "
+    echo "  -c: CMS/Framework to install (allowed values are: wordpress, prestashop, sf2)"  
+    echo "  -v: CMS/Framework Version (By Default last version is allready set)"
 
     exit 1;
 }
@@ -59,7 +62,6 @@ create_vhost_directories () {
 
     DOMAINS=$1
     PROJECT=$2
-
     
     # Check if this web dir belongs to a project directory (then create it)
     if [ "$PROJECT" != "" ]; then	
@@ -127,16 +129,27 @@ move_cms_tmp_to_vhost_dir () {
 
 
 
+get_last_version() {
+    
+    CMS_UPPER=${CMS^^}        
+    if [ $CMS_VERSION == "LASTVERSION" ]; then
+	DOWNLOAD_CMS_VERSION_VAR=$CMS_UPPER"_LASTVERSION"
+	eval CMS_VERSION=\$$DOWNLOAD_CMS_VERSION_VAR
+    fi
+}
+
+
+
 # ************************************************************** #
 # Download Prestashop v1.5.5.0 and copy file to the vhost dir
 
 install_prestashop() {
     
-    show_title "Installing prestashop V1.5.5.0"
+    get_last_version
+    show_title "Installing prestashop V"
     launch_cmd "cd /tmp"
-    launch_cmd "wget http://www.prestashop.com/download/prestashop_1.5.5.0.zip"
-    launch_cmd "unzip prestashop_1.5.5.0.zip"
-    
+    launch_cmd "wget http://www.prestashop.com/download/prestashop_"$CMS_VERSION".zip"
+    launch_cmd "unzip prestashop_"$CMS_VERSION".zip"    
     move_cms_tmp_to_vhost_dir "prestashop"
 }
 
@@ -146,14 +159,16 @@ install_prestashop() {
 
 install_wp() {
 
+    get_last_version
+
     show_title "Installing wordpress latest version"
     launch_cmd "cd /tmp"
-    launch_cmd "wget http://wordpress.org/latest.tar.gz"
-    launch_cmd "tar xvzf latest.tar.gz"
+    launch_cmd "wget http://wordpress.org/"$CMS_VERSION".tar.gz"
+    launch_cmd "tar xvzf "$CMS_VERSION".tar.gz"
     #launch_cmd "mv wordpress/* $APACHE_WEB_DIR$MAIN_HOST"
     #launch_cmd "sudo chown -R $FTP_USR:$FTP_GRP $APACHE_WEB_DIR$DEFAULT_SITE"
     move_cms_tmp_to_vhost_dir "wordpress"
-    
+
     read -e -p "[WP] Enter your Blog Title:" -i $DEFAULT_SITE BLOG_TITLE
     read -e -p "[WP] Enter your Blog Admin Email:" ADMIN_EMAIL
     read -e -p "[WP] Enter your Blog Admin User:"  ADMIN_USR
@@ -167,6 +182,7 @@ install_wp() {
     launch_cmd "chown -R $FTP_USR:$FTP_GRP $APACHE_WEB_DIR$DEFAULT_SITE"
     launch_cmd "chmod 755 wp-config.php"
     launch_cmd "curl -d \"weblog_title=$BLOG_TITLE&user_name=$ADMIN_USR&admin_password=$ADMIN_PWD&admin_password2=$ADMIN_PWD&admin_email=$ADMIN_EMAIL\" http://$DEFAULT_SITE/wp-admin/install.php?step=2"
+    launch_cmd "cd /tmp/"
     launch_cmd "rmdir wordpress"
     launch_cmd "rm latest.tar.gz"
     launch_cmd "rm /tmp/wp.keys"
@@ -242,31 +258,30 @@ fi
 # ------------------------------------------------------------------------------ #
 # Parsing all parameters
 
-while getopts ":H:d:p:u:f:m:l:w:s:h:" opt; do
-  case "$opt" in
-    H)  HOST="$OPTARG";;
-    d)  DOMAINS="$OPTARG";;
-    p)  PROJECT="$OPTARG";;
-    u)  APACHE_WEB_USR="$OPTARG";;
-    f)  FTP_USR="$OPTARG";;
-    m)  MYSQL_USR="$OPTARG";;
-    l)  PWD_LENGHT="$OPTARG";;
-    w)  WP_CREATE=1;;
-    s)  PS_CREATE=1;;
-
-    h)  # print usage
-        usage
-        exit 0
-        ;;
-    :)  echo "Error: -$option requires an argument"
-        usage
-        exit 1
-        ;;
-    ?)  echo "Error: unknown option -$option"
-        usage
-        exit 1
-        ;;
-  esac
+while getopts ":H:d:p:f:m:l:c:v:h:" opt; do
+    case "$opt" in
+	H)  HOST="$OPTARG";;
+	d)  DOMAINS="$OPTARG";;
+	p)  PROJECT="$OPTARG";;
+	f)  FTP_USR="$OPTARG";;
+	m)  MYSQL_USR="$OPTARG";;
+	l)  PWD_LENGHT="$OPTARG";;
+	c)  CMS="$OPTARG";;	
+	v)  CMS_VERSION="$OPTARG";;	
+	
+	h)  # print usage
+            usage
+            exit 0
+            ;;
+	:)  echo "Error: -$option requires an argument"
+            usage
+            exit 1
+            ;;
+	?)  echo "Error: unknown option -$option"
+            usage
+            exit 1
+            ;;
+    esac
 done
 
 
@@ -278,10 +293,11 @@ fi
 if [ "$MYSQL_USR" != "" ]; then
     create_mysql_user $MYSQL_USR $HOST
 fi
-if [ "$WP_CREATE" != "" ]; then
-    install_wp 
+if [ "$MYSQL_USR" != "" ] && [ $CMS == "wordpress" ]; then
+    install_wp
 fi
-if [ "$PS_CREATE" != "" ]; then
+
+if [ "$MYSQL_USR" != "" ] && [ $CMS == "prestashop" ]; then
     install_prestashop
 fi
 
