@@ -70,8 +70,6 @@ launch_cmd () {
     if [ $retval -ne 0 ]; then
         echo "[Error] failed. Exiting..."
         exit $retval
-    else
-        echo "[INFO] Success  "
     fi
 }
 

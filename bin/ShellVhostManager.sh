@@ -31,6 +31,8 @@ CMS="prestashop"
 CMS_VERSION="LASTVERSION"
 PRESTASHOP_LASTVERSION="1.5.5.0"
 WORDPRESS_LASTVERSION="latest"
+SF2_LASTVERSION="2.3.5"
+TPL_FILE="vhost.tpl"
 
 
 # ************************************************************** #
@@ -38,7 +40,7 @@ WORDPRESS_LASTVERSION="latest"
 
 usage () {
     
-    echo "Usage: ShellVhostManager.sh -H -d -p -f -m -l -c -v -h"
+    echo "Usage: ShellVhostManager.sh -H -p -d -h -f -m -l -c -v"
     echo "  -H: Host ."
     echo "  -p: Project name."
     echo "  -d: Domains(fr|com|net)."
@@ -46,11 +48,35 @@ usage () {
     echo "  -f: Ftp User Name (will generate user pwd)"
     echo "  -m: Mysql username (will generate user pwd) DB name will be the host name"
     echo "  -l: Passwords length. (default 10 chars)"
-    echo "  -c: CMS/Framework to install (allowed values are: wordpress, prestashop, sf2)"  
+    echo "  -c: CMS/Framework to install (allowed values are: wordpress, prestashop, sf2, import)"  
     echo "  -v: CMS/Framework Version (By Default last version is allready set)"
 
     exit 1;
 }
+
+
+# ************************************************************** #
+# Import project from FTP host/login/pwd => Mysql dump / Apache Vhost / Source download
+
+install_import() {
+
+    show_title "Importing project from External Host"
+
+    launch_cmd "rm -rf /tmp/import/"
+    launch_cmd "mkdir /tmp/import"
+    launch_cmd "cd /tmp/import"
+
+    read -e -p "[Import] Enter your Host:" IMPORT_HOST
+    read -e -p "[Import] Enter FTP User:"  IMPORT_FTP_USR
+    read -s -p "[Import] Enter FTP Password: " IMPORT_FTP_PWD
+
+    launch_cmd "sudo wget -r ftp://$IMPORT_FTP_USR:$IMPORT_FTP_PWD@localhost  -q -nH"
+    launch_cmd "mysql -u $MYSQL_USR -p$MYSQL_PWD $MYSQL_DB < dump"
+    launch_cmd "sudo rm dump"
+    launch_cmd "cd /tmp"
+    move_cms_tmp_to_vhost_dir "import"
+}
+
 
 
 # ************************************************************** #
@@ -89,12 +115,18 @@ create_vhost_directories () {
    
     # Create site vhost file
     echo "[INFO]Creating virtualhost file: $DEFAULT_SITE"    
-    cat $TEMPLATE_DIR"vhost.tpl" | sed "s/\${HOST}/${DEFAULT_SITE}/"  | sed "s|\${ALIAS}|$ALIAS|"  | sed "s|\${APACHE_LOG_DIR}|$APACHE_LOG_DIR|" | sed "s|\${APACHE_WEB_DIR}|${APACHE_WEB_DIR}|" > "/tmp/${DEFAULT_SITE}"    
+    cat $TEMPLATE_DIR$TPL_FILE | sed "s/\${HOST}/${DEFAULT_SITE}/"  | sed "s|\${ALIAS}|$ALIAS|"  | sed "s|\${APACHE_LOG_DIR}|$APACHE_LOG_DIR|" | sed "s|\${APACHE_WEB_DIR}|${APACHE_WEB_DIR}|" > "/tmp/${DEFAULT_SITE}"    
     launch_cmd "mv /tmp/${DEFAULT_SITE} /etc/apache2/sites-available/${DEFAULT_SITE}"
     launch_cmd "a2ensite $DEFAULT_SITE"
     launch_cmd "/etc/init.d/apache2 reload"   
     MAIN_HOST=$DEFAULT_SITE
-    launch_cmd "echo \"127.0.0.1       $DEFAULT_SITE\" >> /etc/hosts"
+
+
+    check_existing_inf $HOST /etc/hosts hostredirection
+    if [ $? -eq 0 ]; then
+        echo "[INFO] Adding $DEFAULT_SITE to /etc/hosts"
+	launch_cmd "echo \"127.0.0.1       $DEFAULT_SITE\" >> /etc/hosts"
+    fi
 }
 
 
@@ -107,8 +139,10 @@ check_existing_inf() {
     INF=$1
     FILE=$2
     TYPE=$3
+
+    echo "INF: $INF :::::::::::::: FILE: $FILE ::::::::::::::: TYPE: $TYPE"
     
-    egrep "^$INF" $FILE >/dev/null
+    sudo egrep "^$INF" $FILE >/dev/null
     if [ $? -eq 0 ]; then
         echo "[INFO] $INF $TYPE allready exists!"
 	return 1
@@ -122,8 +156,8 @@ move_cms_tmp_to_vhost_dir () {
     
     CMS=$1
 
-    launch_cmd "mv $CMS/* $APACHE_WEB_DIR$MAIN_HOST"
-    launch_cmd "sudo chown -R $FTP_USR:$FTP_GRP $APACHE_WEB_DIR$DEFAULT_SITE"
+    launch_cmd "sudo cp -R $CMS/* $APACHE_WEB_DIR$MAIN_HOST"
+    launch_cmd "sudo chown -R $FTP_USR:$FTP_GRP $APACHE_WEB_DIR$MAIN_HOST"
 }
 
 
@@ -140,31 +174,51 @@ get_last_version() {
 
 
 
+install_sf2() {
+
+    get_last_version
+    show_title "Installing Symfony2 V"$CMS_VERSION
+    launch_cmd "cd /tmp"
+    launch_cmd "wget -O symfony2.tgz http://symfony.com/download?v=Symfony_Standard_Vendors_"$CMS_VERSION".tgz"
+    launch_cmd "tar xvzf symfony2.tgz > /dev/null"
+    move_cms_tmp_to_vhost_dir "Symfony"
+    launch_cmd "sudo chmod 777 "$APACHE_WEB_DIR$DEFAULT_SITE"/app/cache/"
+    launch_cmd "sudo chmod 777 "$APACHE_WEB_DIR$DEFAULT_SITE"/app/logs/"
+    launch_cmd "chown -R $FTP_USR:$FTP_GRP $APACHE_WEB_DIR$DEFAULT_SITE"
+}
+
+
 # ************************************************************** #
 # Download Prestashop v1.5.5.0 and copy file to the vhost dir
 
 install_prestashop() {
     
     get_last_version
-    show_title "Installing prestashop V"
+    show_title "Installing prestashop V"$CMS_VERSION
     launch_cmd "cd /tmp"
     launch_cmd "wget http://www.prestashop.com/download/prestashop_"$CMS_VERSION".zip"
-    launch_cmd "unzip prestashop_"$CMS_VERSION".zip"    
+    launch_cmd "unzip prestashop_"$CMS_VERSION".zip > /dev/null"    
     move_cms_tmp_to_vhost_dir "prestashop"
+    launch_cmd "chown -R $FTP_USR:$FTP_GRP $APACHE_WEB_DIR$DEFAULT_SITE"
 }
 
 
 # ************************************************************** #
 # Install Wordpress on the default Vhost Directory
 
-install_wp() {
+install_wordpress() {
 
     get_last_version
 
-    show_title "Installing wordpress latest version"
+    if [ $CMS_VERSION != 'latest' ]; then
+	CMS_VERSION="wordpress-"$CMS_VERSION
+    fi
+
+    
+    show_title "Installing wordpress V"$CMS_VERSION
     launch_cmd "cd /tmp"
     launch_cmd "wget http://wordpress.org/"$CMS_VERSION".tar.gz"
-    launch_cmd "tar xvzf "$CMS_VERSION".tar.gz"
+    launch_cmd "tar xvzf "$CMS_VERSION".tar.gz > /dev/null"
     #launch_cmd "mv wordpress/* $APACHE_WEB_DIR$MAIN_HOST"
     #launch_cmd "sudo chown -R $FTP_USR:$FTP_GRP $APACHE_WEB_DIR$DEFAULT_SITE"
     move_cms_tmp_to_vhost_dir "wordpress"
@@ -174,11 +228,12 @@ install_wp() {
     read -e -p "[WP] Enter your Blog Admin User:"  ADMIN_USR
     read -s -p "[WP] Enter your Blog Admin Password: " ADMIN_PWD
 
+    MYSQL_DB_CLEAN=$(clean_string $MYSQL_DB)
         
     launch_cmd "cd $APACHE_WEB_DIR$DEFAULT_SITE"
     launch_cmd "touch wp-config.php"
     launch_cmd "chmod 777 wp-config.php"    
-    launch_cmd "sed  -e \"s/username_here/${MYSQL_USR}/g\"  -e \"s/password_here/${MYSQL_PWD}/g\"   -e \"s/database_name_here/${MYSQL_DB}/g\" wp-config-sample.php > wp-config.php"
+    launch_cmd "sed  -e \"s/username_here/${MYSQL_USR}/g\"  -e \"s/password_here/${MYSQL_PWD}/g\"   -e \"s/database_name_here/${MYSQL_DB_CLEAN}/g\" wp-config-sample.php > wp-config.php"
     launch_cmd "chown -R $FTP_USR:$FTP_GRP $APACHE_WEB_DIR$DEFAULT_SITE"
     launch_cmd "chmod 755 wp-config.php"
     launch_cmd "curl -d \"weblog_title=$BLOG_TITLE&user_name=$ADMIN_USR&admin_password=$ADMIN_PWD&admin_password2=$ADMIN_PWD&admin_email=$ADMIN_EMAIL\" http://$DEFAULT_SITE/wp-admin/install.php?step=2"
@@ -186,6 +241,16 @@ install_wp() {
     launch_cmd "rmdir wordpress"
     launch_cmd "rm latest.tar.gz"
     launch_cmd "rm /tmp/wp.keys"
+}
+
+
+clean_string() {
+    
+    CLEAN_STR=${1/ //}
+    CLEAN_STR=${CLEAN_STR/_//}
+    CLEAN_STR=${CLEAN_STR/-//}
+    CLEAN_STR=${CLEAN_STR//[^a-zA-Z0-9]/}
+    echo $CLEAN_STR
 }
 
 
@@ -198,13 +263,23 @@ create_mysql_user() {
     MYSQL_USR=$1
     MYSQL_DB=$2
     
+    MYSQL_DB_CLEAN=$(clean_string $MYSQL_DB) 
+
+
+
+    # first, strip underscores
+    #MYSQL_DB_CLEAN=${MYSQL_DB/ //}
+    #MYSQL_DB_CLEAN=${MYSQL_DB_CLEAN/_//}
+    #MYSQL_DB_CLEAN=${MYSQL_DB_CLEAN/-//}
+    #MYSQL_DB_CLEAN=${MYSQL_DB_CLEAN//[^a-zA-Z0-9]/}
+    
     read -s -p "Please enter $MYSQL_ADMINISTRATOR_USR MySQL Password: " ADMINISTRATOR_PWD
 
     # Generate random pwd for the new user
-    MYSQL_PWD=$(openssl rand -base64 $PWD_LENGHT)
+    MYSQL_PWD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w $PWD_LENGHT | head -n 1)
 
-    launch_cmd "mysql -u $MYSQL_ADMINISTRATOR_USR -p$ADMINISTRATOR_PWD -e \"CREATE DATABASE IF NOT EXISTS $MYSQL_DB; GRANT ALL PRIVILEGES ON $MYSQL_DB.* TO $MYSQL_USR@localhost IDENTIFIED BY '$MYSQL_PWD'\""
-    VHOST_CONF="$VHOST_CONF  [MYSQL CREDENTIALS]USER: $MYSQL_USR ___ PASSWORD: $MYSQL_PWD"
+    launch_cmd "mysql -u $MYSQL_ADMINISTRATOR_USR -p$ADMINISTRATOR_PWD -e \"CREATE DATABASE IF NOT EXISTS $MYSQL_DB_CLEAN; GRANT ALL PRIVILEGES ON $MYSQL_DB_CLEAN.* TO $MYSQL_USR@localhost IDENTIFIED BY '$MYSQL_PWD'\" "
+   VHOST_CONF="$VHOST_CONF  [MYSQL CREDENTIALS]USER: $MYSQL_USR ___ PASSWORD: $MYSQL_PWD"
 }
 
 
@@ -228,15 +303,21 @@ create_ftp_user() {
     check_existing_inf $FTP_USR /etc/passwd user 
     if [ $? -eq 0 ]; then
         echo "[INFO] Creating user $FTP_USR"
-        PASSWD=$(openssl rand -base64 $PWD_LENGHT)
+        PASSWD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w $PWD_LENGHT | head -n 1) 
 
 #        useradd $FTP_USR --ingroup $FTP_GRP --shell /bin/false --home $APACHE_WEB_DIR$DEFAULT_SITE -p $PASSWD
-        launch_cmd "useradd $FTP_USR -g $FTP_GRP -d  $APACHE_WEB_DIR$DEFAULT_SITE"
+        launch_cmd "useradd $FTP_USR -g $FTP_GRP -d $APACHE_WEB_DIR$DEFAULT_SITE -s /bin/false"
 	launch_cmd "echo $FTP_USR:$PASSWD | sudo chpasswd"      
         launch_cmd "sudo chown -R $FTP_USR:$FTP_GRP $APACHE_WEB_DIR$DEFAULT_SITE"
 	VHOST_CONF="$VHOST_CONF  [FTP CREDENTIALS]USER: $FTP_USR ___ PASSWORD: $PASSWD"
     fi
 }
+
+
+
+
+
+
 
 
 # ------------------------------------------------------------------------------ #
@@ -284,23 +365,19 @@ while getopts ":H:d:p:f:m:l:c:v:h:" opt; do
     esac
 done
 
-
+if [ $CMS == "sf2" ]; then
+    TPL_FILE="vhost_sf2.tpl"
+fi
 create_vhost_directories $DOMAINS $PROJECT 
-
 if [ "$FTP_USR" != "" ]; then
     create_ftp_user $FTP_USR
 fi
+
 if [ "$MYSQL_USR" != "" ]; then
     create_mysql_user $MYSQL_USR $HOST
 fi
-if [ "$MYSQL_USR" != "" ] && [ $CMS == "wordpress" ]; then
-    install_wp
+
+if [ "$MYSQL_USR" != "" ] && [ $CMS != "" ]; then
+    launch_cmd "install_$CMS"
 fi
 
-if [ "$MYSQL_USR" != "" ] && [ $CMS == "prestashop" ]; then
-    install_prestashop
-fi
-
-echo "create:::$PS_CREATE"
-exit
-echo $VHOST_CONF
