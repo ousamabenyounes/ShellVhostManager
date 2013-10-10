@@ -2,26 +2,39 @@ ShellVhostManager
 =================
 
 This shell script helps you managing LAMP basic needs (virtualHost, Ftp users, Mysql Database)
-
+You have a linux server, and you always lose time configuring your websites, downloading last cms versions, installing mysql databases...
+This script will help you earn time and let you focus on managing your contents.
 
 Usage: ShellVhostManager.sh -H -d -p -f -m -l -c -v -h  
   -H: Host .  
   -p: Project name.  
   -d: Domains(fr|com|net).  
-  -h: Print this Help.  
   -f: Ftp User Name (will generate user pwd)  
   -m: Mysql username (will generate user pwd) DB name will be the host name  
   -l: Passwords length. (default 10 chars)  
-  -c: CMS/Framework to install (allowed values are: wordpress, prestashop, sf2)  
+  -c: CMS/Framework to install (allowed values are: wordpress, prestashop, sf2, import)  
   -v: CMS/Framework Version (By Default last version is allready set)  
+  -h: Print this Help.  
 
 
+Sample
+=================
 
-$ ShellVhostManager.sh -p projectname -H api.projectname -d "fr|com|tk" -u "www-data:www-data"  
+$ ShellVhostManager.sh -p myprojects -H google -d "fr|com|tk" -f ous -c prestashop
 
-First This will create "/var/www/projectname/api.projectname" directory (also create log directories)  
-Then the apache virutalHost is created and enable (a2ensite).  
-Apache is restarted.  
+- First This will create web root directory (/var/www/myprojects/prestashop.fr/
+- Create log directory & files (/var/log/apache2/myprojects/prestashop.fr/error.log & access.log
+- Create FTP user: ous:ftpgroup with home directory => previous created web root dir
+- Create MySQL config: database=prestashop User=ous Pwd=generatedPasswd
+- Create Vhost: /etc/apache2/site-available/prestashop.fr from a vhost template
+Also added aliases for the given extentions: fr & com & tk
+Enable the vhost & reload apache 
+- Add "127.0.0.1 prestashop.fr" on your /etc/hosts file
+- Download last version of prestashop and install it on your web root directory (chown with the ftp user)
+
+If you choose option "-c import ", you'll be asked your FTP host:login:pwd and it will download all available files
+You must set a dump file of your mysql database, so it will install it with the previously created mysql user
+
 
 
 #Todo
