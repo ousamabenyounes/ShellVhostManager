@@ -20,7 +20,9 @@ Usage: ShellVhostManager.sh -H -d -p -f -m -l -c -v -h
 Sample
 =================
 
-$ ShellVhostManager.sh -p myprojects -H google -d "fr|com|tk" -f ous -c prestashop
+
+
+    $ ShellVhostManager.sh -p myprojects -H prestashop -d "fr|com|tk" -f ous -c prestashop
 
 - First This will create web root directory (/var/www/myprojects/prestashop.fr/
 - Create log directory & files (/var/log/apache2/myprojects/prestashop.fr/error.log & access.log
