@@ -40,16 +40,16 @@ TPL_FILE="vhost.tpl"
 
 usage () {
     
-    echo "Usage: ShellVhostManager.sh -H -p -d -h -f -m -l -c -v"
+    echo "Usage: ShellVhostManager.sh -H -p -d -f -m -l -c -v -h"
     echo "  -H: Host ."
     echo "  -p: Project name."
     echo "  -d: Domains(fr|com|net)."
-    echo "  -h: Print this Help."
     echo "  -f: Ftp User Name (will generate user pwd)"
     echo "  -m: Mysql username (will generate user pwd) DB name will be the host name"
     echo "  -l: Passwords length. (default 10 chars)"
     echo "  -c: CMS/Framework to install (allowed values are: wordpress, prestashop, sf2, import)"  
     echo "  -v: CMS/Framework Version (By Default last version is allready set)"
+    echo "  -h: Print this Help."
 
     exit 1;
 }
@@ -131,24 +131,6 @@ create_vhost_directories () {
 
 
 
-# ************************************************************** #
-# Searching for existing user or group in passwd or group file
-
-check_existing_inf() {
-
-    INF=$1
-    FILE=$2
-    TYPE=$3
-
-    echo "INF: $INF :::::::::::::: FILE: $FILE ::::::::::::::: TYPE: $TYPE"
-    
-    sudo egrep "^$INF" $FILE >/dev/null
-    if [ $? -eq 0 ]; then
-        echo "[INFO] $INF $TYPE allready exists!"
-	return 1
-    fi
-    return 0
-}
 
 
 
@@ -336,6 +318,8 @@ if [ "$SUDO_USER" = "root" ]; then
 fi
 
 
+
+
 # ------------------------------------------------------------------------------ #
 # Parsing all parameters
 
@@ -364,6 +348,17 @@ while getopts ":H:d:p:f:m:l:c:v:h:" opt; do
             ;;
     esac
 done
+
+check_existing_inf 'ousama' /etc/hosts 
+
+
+if [ $? -eq 0 ]; then
+    echo "[INFO] Existe pas on ajoute"
+fi
+
+
+
+exit
 
 if [ $CMS == "sf2" ]; then
     TPL_FILE="vhost_sf2.tpl"

@@ -7,10 +7,18 @@
 #================================================================================
 
 
-# ************************************************************** #
-# Create a directory 
+declare -r TRUE=0
+declare -r FALSE=1
 
-create_dir () {
+
+##################################################################
+# Purpose: Create a directory
+# Arguments:
+#   $1 (DIR) -> Directory you want to create
+#   $1 (USER_GROUP) -> User Group of the new directory
+##################################################################
+function create_dir() 
+{
     DIR=$1
     USER_GROUP=$2
     
@@ -24,26 +32,27 @@ create_dir () {
 }
 
 
-
-# ************************************************************** #
-# Show given title
-
-show_title () {
-    
-    TITLE=$1
+##################################################################
+# Purpose: Show given title
+# Arguments:
+#   $1 (TITLE) -> String to print
+##################################################################
+function show_title() 
+{    
+    local TITLE=$1
     echo "--------------------------------------------"
-    echo "INFO $TITLE"
-
+    echo "$TITLE"
 }
 
 
-
-# ************************************************************** #
-# Check if user is allowed to use this script
-
-check_sudo () {
-    CMD=$1
-    
+##################################################################
+# Purpose: Check if user is allow to use this script
+# Arguments:
+#   $1 -> String to convert to lower case
+##################################################################
+function check_sudo () 
+{
+    local CMD=$1    
     if [ `whoami` != 'root' ]; then
 	echo "This script is only allowed for superuser."
 	echo "Enter your password to continue..."
@@ -58,12 +67,14 @@ check_sudo () {
 }
 
 
-# ************************************************************** #
-# Check if user is allowed to use this script
-
-launch_cmd () {
-
-    CMD=$1   
+##################################################################
+# Purpose: Launch given command, print it or exit if error occurs
+# Arguments:
+#   $1 (CMD) -> the given command 
+##################################################################
+function launch_cmd() 
+{
+    local CMD=$1   
     echo "[INFO] cmd => $CMD"
     eval $CMD
     retval=$?    
@@ -74,4 +85,18 @@ launch_cmd () {
 }
 
 
-
+##################################################################
+# Purpose: Return true $INF exits in $FILE
+# Arguments: 
+#   $1 (INF) -> The searched term
+#   $2 (FILE) -> The file where we need to search
+#   $3 (TYPE) -> The object type (group, user, hostile 
+# Return: True or False
+##################################################################
+function check_existing_inf() 
+{
+    local INF="$1"
+    local FILE="$2"
+  
+    grep -q "^${INF}" $FILE && return 1 || return 0
+}
