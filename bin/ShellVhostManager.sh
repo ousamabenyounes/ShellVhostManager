@@ -33,14 +33,14 @@ PRESTASHOP_LASTVERSION="1.5.5.0"
 WORDPRESS_LASTVERSION="latest"
 SF2_LASTVERSION="2.3.5"
 TPL_FILE="vhost.tpl"
-
+SUB_DOMAIN=""
 
 # ************************************************************** #
 # Print help message
 
 usage () {
     
-    echo "Usage: ShellVhostManager.sh -H -p -d -f -m -l -c -v -h"
+    echo "Usage: ShellVhostManager.sh -H -p -d -f -m -l -c -v -s -h "
     echo "  -H: Host ."
     echo "  -p: Project name."
     echo "  -d: Domains(fr|com|net)."
@@ -49,6 +49,7 @@ usage () {
     echo "  -l: Passwords length. (default 10 chars)"
     echo "  -c: CMS/Framework to install (allowed values are: wordpress, prestashop, sf2, import)"  
     echo "  -v: CMS/Framework Version (By Default last version is allready set)"
+    echo "  -s: Subdomain."
     echo "  -h: Print this Help."
 
     exit 1;
@@ -323,7 +324,7 @@ fi
 # ------------------------------------------------------------------------------ #
 # Parsing all parameters
 
-while getopts ":H:d:p:f:m:l:c:v:h:" opt; do
+while getopts ":H:d:p:f:m:l:c:v:s:h:" opt; do
     case "$opt" in
 	H)  HOST="$OPTARG";;
 	d)  DOMAINS="$OPTARG";;
@@ -333,6 +334,7 @@ while getopts ":H:d:p:f:m:l:c:v:h:" opt; do
 	l)  PWD_LENGHT="$OPTARG";;
 	c)  CMS="$OPTARG";;	
 	v)  CMS_VERSION="$OPTARG";;	
+        s)  SUBDOMAIN="$OPTARG";;
 	
 	h)  # print usage
             usage
@@ -349,16 +351,7 @@ while getopts ":H:d:p:f:m:l:c:v:h:" opt; do
     esac
 done
 
-check_existing_inf 'ousama' /etc/hosts 
 
-
-if [ $? -eq 0 ]; then
-    echo "[INFO] Existe pas on ajoute"
-fi
-
-
-
-exit
 
 if [ $CMS == "sf2" ]; then
     TPL_FILE="vhost_sf2.tpl"
