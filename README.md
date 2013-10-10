@@ -5,7 +5,10 @@ This shell script helps you managing LAMP basic needs (virtualHost, Ftp users, M
 You have a linux server, and you always lose time configuring your websites, downloading last cms versions, installing mysql databases...
 This script will help you earn time and let you focus on managing your contents.
 
-Usage: ShellVhostManager.sh -H -d -p -f -m -l -c -v -h  
+Usage
+=================
+
+ShellVhostManager.sh -H -d -p -f -m -l -c -v -h  
   -H: Host .  
   -p: Project name.  
   -d: Domains(fr|com|net).  
