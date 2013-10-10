@@ -26,8 +26,8 @@ $ ShellVhostManager.sh -p myprojects -H google -d "fr|com|tk" -f ous -c prestash
 - Create log directory & files (/var/log/apache2/myprojects/prestashop.fr/error.log & access.log
 - Create FTP user: ous:ftpgroup with home directory => previous created web root dir
 - Create MySQL config: database=prestashop User=ous Pwd=generatedPasswd
-- Create Vhost: /etc/apache2/site-available/prestashop.fr from a vhost template
-Also added aliases for the given extentions: fr & com & tk
+- Create Vhost: /etc/apache2/site-available/prestashop.fr from a vhost template  
+Also added aliases for the given extentions: fr & com & tk  
 Enable the vhost & reload apache 
 - Add "127.0.0.1 prestashop.fr" on your /etc/hosts file
 - Download last version of prestashop and install it on your web root directory (chown with the ftp user)
