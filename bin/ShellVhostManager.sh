@@ -83,7 +83,7 @@ install_import() {
 # ************************************************************** #
 # Create Vhost and Activate it
 
-create_vhost_directories () {
+function create_vhost_conf () {
 
     show_title "Create VHOST Directories"
 
@@ -132,8 +132,9 @@ create_vhost_directories () {
     # Create site vhost file
     echo "[INFO] Creating virtualhost file: $SUBDOMAIN_SITE"    
     
- cat $TEMPLATE_DIR$TPL_FILE | sed "s/\${HOST}/${DEFAULT_SITE}/"  | sed "s|\${ALIAS}|$ALIAS|"  | sed "s|\${APACHE_LOG_DIR}|$APACHE_LOG_DIR|" | sed "s|\${APACHE_WEB_DIR}|${APACHE_WEB_DIR}|"
-    cat $TEMPLATE_DIR$TPL_FILE | sed "s/\${HOST}/${DEFAULT_SITE}/"  | sed "s|\${ALIAS}|$ALIAS|"  | sed "s|\${APACHE_LOG_DIR}|$APACHE_LOG_DIR|" | sed "s|\${APACHE_WEB_DIR}|${APACHE_WEB_DIR}|" > "/tmp/${DEFAULT_SITE}"       
+# cat $TEMPLATE_DIR$TPL_FILE | sed "s/\${HOST}/${DEFAULT_SITE}/"  | sed "s|\${ALIAS}|$ALIAS|"  | sed "s|\${APACHE_LOG_DIR}|$APACHE_LOG_DIR|" | 
+#sed "s|\${APACHE_WEB_DIR}|${APACHE_WEB_DIR}|"
+    cat $TEMPLATE_DIR$TPL_FILE | sed "s/\${HOST}/${DEFAULT_SITE}/"  | sed "s|\${ALIAS}|$ALIAS|" |  sed "s|\${APACHE_LOG_DIR}|$APACHE_LOG_DIR|" | sed "s|\${APACHE_WEB_DIR}|${APACHE_WEB_DIR}|" > "/tmp/${DEFAULT_SITE}"       
     launch_cmd "mv /tmp/${DEFAULT_SITE} /etc/apache2/sites-available/${DEFAULT_SITE}"
     launch_cmd "a2ensite $DEFAULT_SITE"
     launch_cmd "/etc/init.d/apache2 reload"   
@@ -147,6 +148,13 @@ create_vhost_directories () {
 }
 
 
+function create_logrotate_conf()
+{
+    cat $TEMPLATE_DIR"logrotate.tpl" | sed "s/\${HOST}/${DEFAULT_SITE}/" | sed "s|\${APACHE_LOG_DIR}|$APACHE_LOG_DIR|"   > "/tmp/logrotate${DEFAULT_SITE}"
+    launch_cmd "mv /tmp/logrotate${DEFAULT_SITE} /etc/logrotate.d/${DEFAULT_SITE}"
+    launch_cmd "logrotate -f  /etc/logrotate.conf"
+    
+}
 
 
 
@@ -372,7 +380,8 @@ done
 if [ $CMS == "sf2" ]; then
     TPL_FILE="vhost_sf2.tpl"
 fi
-create_vhost_directories $DOMAINS $PROJECT 
+create_vhost_conf $DOMAINS $PROJECT 
+create_logrotate_conf
 if [ "$FTP_USR" != "" ]; then
     create_ftp_user $FTP_USR
 fi
