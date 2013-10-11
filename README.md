@@ -40,6 +40,23 @@ Enable the vhost & reload apache
 If you choose option "-c import ", you'll be asked your FTP host:login:pwd and it will download all available files
 You must set a dump file of your mysql database, so it will install it with the previously created mysql user
 
+Here is the Generated VHOST content:
+
+
+    <VirtualHost *:80>
+        ServerName prestashop.fr
+        ServerAlias  www.prestashop.fr prestashop.fr www.prestashop.com prestashop.com www.prestashop.tk prestashop.tk
+        DocumentRoot /var/www/myprojects/prestashop.fr
+        
+        ErrorLog /var/log/apache2/myprojects/prestashop.fr/error.log
+
+        # Possible values include: debug, info, notice, warn, error, crit,
+        # alert, emerg.
+        LogLevel warn
+
+        CustomLog /var/log/apache2/myprojects/prestashop.fr/access.log combined
+    </VirtualHost>
+
 
 
 #Todo
