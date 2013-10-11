@@ -8,7 +8,7 @@ This script will help you earn time and let you focus on managing your contents.
 Usage
 =================
 
-ShellVhostManager.sh -H -d -p -f -m -l -c -v -h  
+ShellVhostManager.sh -H -d -p -f -m -l -c -v -s -h  
   -H: Host .  
   -p: Project name.  
   -d: Domains(fr|com|net).  
@@ -17,6 +17,7 @@ ShellVhostManager.sh -H -d -p -f -m -l -c -v -h
   -l: Passwords length. (default 10 chars)  
   -c: CMS/Framework to install (allowed values are: wordpress, prestashop, sf2, import)  
   -v: CMS/Framework Version (By Default last version is allready set)  
+  -s: Subdomain.
   -h: Print this Help.  
 
 
