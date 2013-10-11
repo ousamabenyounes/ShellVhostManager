@@ -8,7 +8,7 @@ This script will help you earn time and let you focus on managing your contents.
 Usage
 =================
 
-ShellVhostManager.sh -H -d -p -f -m -l -c -v -s -h  
+<pre>ShellVhostManager.sh -H -d -p -f -m -l -c -v -s -h  
   -H: Host .  
   -p: Project name.  
   -d: Domains(fr|com|net).  
@@ -19,7 +19,7 @@ ShellVhostManager.sh -H -d -p -f -m -l -c -v -s -h
   -v: CMS/Framework Version (By Default last version is allready set)  
   -s: Subdomain.  
   -h: Print this Help.  
-
+</pre>
 
 Sample
 =================
@@ -62,7 +62,6 @@ Here is the Generated VHOST content:
 
 #Todo
 Check /etc/hosts content before updating  
-Add dynamic log rotate  
 Dynamic shell library path including  
 Vhost BackUp commands  
 Add docker & configure it to a real project isolation (security, light backup...)  
