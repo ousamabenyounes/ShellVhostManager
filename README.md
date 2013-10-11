@@ -62,7 +62,6 @@ Here is the Generated VHOST content:
 #Todo
 Check /etc/hosts content before updating  
 Add dynamic log rotate  
-Subdomains creation  
 Dynamic shell library path including  
 Vhost BackUp commands  
 Add docker & configure it to a real project isolation (security, light backup...)  

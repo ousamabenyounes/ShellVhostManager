@@ -104,24 +104,40 @@ create_vhost_directories () {
     set -- $var
     for i in $*
     {
-	SITE="$HOST.$i"
-	ALIAS="$ALIAS $WWW.$SITE $SITE"
+        if [ "$SUBDOMAIN" != "" ]; then
+	    SITE="$SUBDOMAIN.$HOST.$i"
+            ALIAS="$ALIAS $SITE"
+	else
+	    SITE="$HOST.$i"
+	    ALIAS="$ALIAS $WWW.$SITE $SITE"
+	fi
     }
+
 
     # Create Default Site web & log directories
     DEFAULT_SITE="$HOST.$1"
-
     create_dir $APACHE_WEB_DIR$DEFAULT_SITE $APACHE_WEB_USR
     create_dir $APACHE_LOG_DIR$DEFAULT_SITE $APACHE_LOG_USR
    
+    if [ "$SUBDOMAIN" != "" ]; then
+	create_dir $APACHE_WEB_DIR$DEFAULT_SITE"/subdomains" $APACHE_WEB_USR
+        create_dir $APACHE_WEB_DIR$DEFAULT_SITE"/subdomains/"$SUBDOMAIN.$HOST.$1 $APACHE_WEB_USR
+	create_dir $APACHE_LOG_DIR$DEFAULT_SITE"/subdomains" $APACHE_LOG_USR
+        create_dir $APACHE_LOG_DIR$DEFAULT_SITE"/subdomains/"$SUBDOMAIN.$HOST.$1 $APACHE_LOG_USR
+	APACHE_WEB_DIR=$APACHE_WEB_DIR$DEFAULT_SITE"/subdomains/"
+	APACHE_LOG_DIR=$APACHE_LOG_DIR$DEFAULT_SITE"/subdomains/"
+        DEFAULT_SITE="$SUBDOMAIN.$HOST.$1"
+    fi
+
     # Create site vhost file
-    echo "[INFO]Creating virtualhost file: $DEFAULT_SITE"    
-    cat $TEMPLATE_DIR$TPL_FILE | sed "s/\${HOST}/${DEFAULT_SITE}/"  | sed "s|\${ALIAS}|$ALIAS|"  | sed "s|\${APACHE_LOG_DIR}|$APACHE_LOG_DIR|" | sed "s|\${APACHE_WEB_DIR}|${APACHE_WEB_DIR}|" > "/tmp/${DEFAULT_SITE}"    
+    echo "[INFO] Creating virtualhost file: $SUBDOMAIN_SITE"    
+    
+ cat $TEMPLATE_DIR$TPL_FILE | sed "s/\${HOST}/${DEFAULT_SITE}/"  | sed "s|\${ALIAS}|$ALIAS|"  | sed "s|\${APACHE_LOG_DIR}|$APACHE_LOG_DIR|" | sed "s|\${APACHE_WEB_DIR}|${APACHE_WEB_DIR}|"
+    cat $TEMPLATE_DIR$TPL_FILE | sed "s/\${HOST}/${DEFAULT_SITE}/"  | sed "s|\${ALIAS}|$ALIAS|"  | sed "s|\${APACHE_LOG_DIR}|$APACHE_LOG_DIR|" | sed "s|\${APACHE_WEB_DIR}|${APACHE_WEB_DIR}|" > "/tmp/${DEFAULT_SITE}"       
     launch_cmd "mv /tmp/${DEFAULT_SITE} /etc/apache2/sites-available/${DEFAULT_SITE}"
     launch_cmd "a2ensite $DEFAULT_SITE"
     launch_cmd "/etc/init.d/apache2 reload"   
     MAIN_HOST=$DEFAULT_SITE
-
 
     check_existing_inf $HOST /etc/hosts hostredirection
     if [ $? -eq 0 ]; then
@@ -206,7 +222,7 @@ install_wordpress() {
     #launch_cmd "sudo chown -R $FTP_USR:$FTP_GRP $APACHE_WEB_DIR$DEFAULT_SITE"
     move_cms_tmp_to_vhost_dir "wordpress"
 
-    read -e -p "[WP] Enter your Blog Title:" -i $DEFAULT_SITE BLOG_TITLE
+    read -e -p "[WP] Enter your Blog Title:"  BLOG_TITLE
     read -e -p "[WP] Enter your Blog Admin Email:" ADMIN_EMAIL
     read -e -p "[WP] Enter your Blog Admin User:"  ADMIN_USR
     read -s -p "[WP] Enter your Blog Admin Password: " ADMIN_PWD
