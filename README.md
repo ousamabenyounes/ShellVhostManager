@@ -59,7 +59,12 @@ Here is the Generated VHOST content:
     </VirtualHost>
 
 
+#Requirements
 
+- proftpd => apt-get install proftpd 
+- logrotate => apt-get install logrotate
+- Lamp Basics (Apache, MySql, Php)
+  
 #Todo
 Check /etc/hosts content before updating  
 Dynamic shell library path including  
