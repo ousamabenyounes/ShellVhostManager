@@ -34,6 +34,7 @@ WORDPRESS_LASTVERSION="latest"
 SF2_LASTVERSION="2.3.5"
 TPL_FILE="vhost.tpl"
 SUB_DOMAIN=""
+CONFIG_DIR="../myhostconf"
 
 # ************************************************************** #
 # Print help message
@@ -271,14 +272,6 @@ create_mysql_user() {
     MYSQL_DB=$2
     
     MYSQL_DB_CLEAN=$(clean_string $MYSQL_DB) 
-
-
-
-    # first, strip underscores
-    #MYSQL_DB_CLEAN=${MYSQL_DB/ //}
-    #MYSQL_DB_CLEAN=${MYSQL_DB_CLEAN/_//}
-    #MYSQL_DB_CLEAN=${MYSQL_DB_CLEAN/-//}
-    #MYSQL_DB_CLEAN=${MYSQL_DB_CLEAN//[^a-zA-Z0-9]/}
     
     read -s -p "Please enter $MYSQL_ADMINISTRATOR_USR MySQL Password: " ADMINISTRATOR_PWD
 
@@ -286,7 +279,12 @@ create_mysql_user() {
     MYSQL_PWD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w $PWD_LENGHT | head -n 1)
 
     launch_cmd "mysql -u $MYSQL_ADMINISTRATOR_USR -p$ADMINISTRATOR_PWD -e \"CREATE DATABASE IF NOT EXISTS $MYSQL_DB_CLEAN; GRANT ALL PRIVILEGES ON $MYSQL_DB_CLEAN.* TO $MYSQL_USR@localhost IDENTIFIED BY '$MYSQL_PWD'\" "
-   VHOST_CONF="$VHOST_CONF  [MYSQL CREDENTIALS]USER: $MYSQL_USR ___ PASSWORD: $MYSQL_PWD"
+    echo -e "******************************************" >> "$CONFIG_DIR/"$DEFAULT_SITE"_conf"
+    echo -e "[MYSQL CREDENTIALS]" >> "$CONFIG_DIR/"$DEFAULT_SITE"_conf"
+    echo -e "DB: '$MYSQL_DB_CLEAN'" >> "$CONFIG_DIR/"$DEFAULT_SITE"_conf"
+    echo -e "USER: '$MYSQL_USR'" >> "$CONFIG_DIR/"$DEFAULT_SITE"_conf"
+    echo -e "PASSWORD: '$MYSQL_PWD'\n" >> "$CONFIG_DIR/"$DEFAULT_SITE"_conf"
+    
 }
 
 
@@ -308,6 +306,7 @@ create_ftp_user() {
 
     # Try to find ftpusr or create it 
     check_existing_inf $FTP_USR /etc/passwd user 
+
     if [ $? -eq 0 ]; then
         echo "[INFO] Creating user $FTP_USR"
         PASSWD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w $PWD_LENGHT | head -n 1) 
@@ -316,7 +315,10 @@ create_ftp_user() {
         launch_cmd "useradd $FTP_USR -g $FTP_GRP -d $APACHE_WEB_DIR$DEFAULT_SITE -s /bin/false"
 	launch_cmd "echo $FTP_USR:$PASSWD | sudo chpasswd"      
         launch_cmd "sudo chown -R $FTP_USR:$FTP_GRP $APACHE_WEB_DIR$DEFAULT_SITE"
-	VHOST_CONF="$VHOST_CONF  [FTP CREDENTIALS]USER: $FTP_USR ___ PASSWORD: $PASSWD"
+	echo -e "******************************************" >> "$CONFIG_DIR/"$DEFAULT_SITE"_conf"
+	echo -e "[FTP CREDENTIALS]" >> "$CONFIG_DIR/"$DEFAULT_SITE"_conf"
+        echo -e "USER: '$FTP_USR'" >> "$CONFIG_DIR/"$DEFAULT_SITE"_conf"
+	echo -e "PASSWORD: '$PASSWD'\n" >> "$CONFIG_DIR/"$DEFAULT_SITE"_conf"
     fi
 }
 
@@ -382,6 +384,7 @@ if [ $CMS == "sf2" ]; then
 fi
 create_vhost_conf $DOMAINS $PROJECT 
 create_logrotate_conf
+echo -e "--------------- CONFIG FILE FOR HOST $DEFAULT_SITE --------------\n\n" > "$CONFIG_DIR/"$DEFAULT_SITE"_conf"
 if [ "$FTP_USR" != "" ]; then
     create_ftp_user $FTP_USR
 fi
