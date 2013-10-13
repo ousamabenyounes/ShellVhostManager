@@ -68,7 +68,7 @@ Here is the Generated VHOST content:
 - Lamp Basics (Apache, MySql, Php)
   
 #Todo
-Add composer.phar to download cms instead of classic wget ...Throw a composer.json file generator
+Add composer.phar to download cms instead of classic wget ...Throw a composer.json file generator  
 Check /etc/hosts content before updating  
 Dynamic shell library path including  
 Vhost BackUp commands  
