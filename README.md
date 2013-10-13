@@ -5,6 +5,8 @@ This shell script helps you managing LAMP basic needs (virtualHost, Ftp users, M
 You have a linux server, and you always lose time configuring your websites, downloading last cms versions, installing mysql databases...
 This script will help you earn time and let you focus on managing your contents.
 
+This shell scropt was developped on a  Ubuntu 12.10 
+
 Usage
 =================
 
@@ -66,6 +68,7 @@ Here is the Generated VHOST content:
 - Lamp Basics (Apache, MySql, Php)
   
 #Todo
+Add composer.phar to download cms instead of classic wget ...Throw a composer.json file generator
 Check /etc/hosts content before updating  
 Dynamic shell library path including  
 Vhost BackUp commands  
