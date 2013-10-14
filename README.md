@@ -5,7 +5,7 @@ This shell script helps you managing LAMP basic needs (virtualHost, Ftp users, M
 You have a linux server, and you always lose time configuring your websites, downloading last cms versions, installing mysql databases...
 This script will help you earn time and let you focus on managing your contents.
 
-This shell scropt was developped on a  Ubuntu 12.10 
+This shell script was developped & tested on an Ubuntu 12.10 server
 
 Usage
 =================
