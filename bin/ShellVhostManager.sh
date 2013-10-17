@@ -72,7 +72,7 @@ install_import() {
     read -e -p "[Import] Enter FTP User:"  IMPORT_FTP_USR
     read -s -p "[Import] Enter FTP Password: " IMPORT_FTP_PWD
 
-    launch_cmd "sudo wget -r ftp://$IMPORT_FTP_USR:$IMPORT_FTP_PWD@localhost  -q -nH"
+    launch_cmd "sudo wget -r ftp://$IMPORT_FTP_USR:$IMPORT_FTP_PWD@$IMPORT_HOST   -nH"
     launch_cmd "mysql -u $MYSQL_USR -p$MYSQL_PWD $MYSQL_DB < dump"
     launch_cmd "sudo rm dump"
     launch_cmd "cd /tmp"
