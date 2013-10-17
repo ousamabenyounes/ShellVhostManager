@@ -1,9 +1,0 @@
---------------- CONFIG FILE FOR HOST prestashop.fr --------------
-
-
-******************************************
-[MYSQL CREDENTIALS]
-DB: 'prestashop'
-USER: 'ous'
-PASSWORD: '3Pvr48kM'
-
