@@ -73,3 +73,6 @@ Dynamic shell library path including
 Vhost BackUp commands  
 Add docker & configure it to a real project isolation (security, light backup...)  
 Add Verbose or silent mode
+Study capifony integration (thanks to rocky for the idea)
+Add shell alis ton easily move to the created vhost directory
+Publish a video & a blog article to present some real sample
