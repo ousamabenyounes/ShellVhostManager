@@ -69,7 +69,7 @@ Here is the Generated VHOST content:
   
 #Todo
 Fix Linux compatibility issues (apache home directory, log change...)  
-Add Ngynx feature (asked by Melvyn)  
+Add Nginx feature (asked by Melvyn)  
 Check /etc/hosts content before updating  
 Dynamic shell library path including  
 Vhost BackUp commands  
