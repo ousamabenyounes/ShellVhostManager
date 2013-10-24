@@ -68,11 +68,13 @@ Here is the Generated VHOST content:
 - Lamp Basics (Apache, MySql, Php)
   
 #Todo
+Fix Linux compatibility issues (apache home directory, log change...)  
+Add Ngynx feature (asked by Melvyn)  
 Check /etc/hosts content before updating  
 Dynamic shell library path including  
 Vhost BackUp commands  
 Add docker & configure it to a real project isolation (security, light backup...)  
 Add Verbose or silent mode  
-Study capifony integration (thanks to rocky for the idea)  
+Study capifony integration (asked by rocky)  
 Add shell alis ton easily move to the created vhost directory  
 Publish a video & a blog article to present some real sample  
