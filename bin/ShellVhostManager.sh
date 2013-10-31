@@ -35,13 +35,15 @@ SF2_LASTVERSION="2.3.5"
 TPL_FILE="vhost.tpl"
 SUB_DOMAIN=""
 CONFIG_DIR="../myhostconf"
+LOG_DIR="../log"
+LOG_TYPE="echo"
 
 # ************************************************************** #
 # Print help message
 
 usage () {
     
-    echo "Usage: ShellVhostManager.sh -H -p -d -f -m -l -c -v -s -h "
+    echo "Usage: ShellVhostManager.sh -H -p -d -f -m -l -c -v -s -h -t"
     echo "  -H: Host ."
     echo "  -p: Project name."
     echo "  -d: Domains(fr|com|net)."
@@ -52,6 +54,7 @@ usage () {
     echo "  -v: CMS/Framework Version (By Default last version is allready set)"
     echo "  -s: Subdomain."
     echo "  -h: Print this Help."
+    echo "  -t: Log Type (echo|file) to get silent mode set it to file."
 
     exit 1;
 }
@@ -131,7 +134,7 @@ function create_vhost_conf () {
     fi
 
     # Create site vhost file
-    echo "[INFO] Creating virtualhost file: $SUBDOMAIN_SITE"    
+    mylog "[INFO] Creating virtualhost file: $SUBDOMAIN_SITE"    
     
 # cat $TEMPLATE_DIR$TPL_FILE | sed "s/\${HOST}/${DEFAULT_SITE}/"  | sed "s|\${ALIAS}|$ALIAS|"  | sed "s|\${APACHE_LOG_DIR}|$APACHE_LOG_DIR|" | 
 #sed "s|\${APACHE_WEB_DIR}|${APACHE_WEB_DIR}|"
@@ -143,7 +146,7 @@ function create_vhost_conf () {
 
     check_existing_inf $HOST /etc/hosts hostredirection
     if [ $? -eq 0 ]; then
-        echo "[INFO] Adding $DEFAULT_SITE to /etc/hosts"
+        mylog "[INFO] Adding $DEFAULT_SITE to /etc/hosts"
 	launch_cmd "echo \"127.0.0.1       $DEFAULT_SITE\" >> /etc/hosts"
     fi
 }
@@ -300,7 +303,7 @@ create_ftp_user() {
     # Try to search ftpgrp or create it
     check_existing_inf $FTP_GRP /etc/group group
     if [ $? -eq 0 ]; then
-        echo "[INFO] Creating group $FTP_GRP"
+        mylog "[INFO] Creating group $FTP_GRP"
 	launch_cmd "addgroup $FTP_GRP"
     fi
 
@@ -308,7 +311,7 @@ create_ftp_user() {
     check_existing_inf $FTP_USR /etc/passwd user 
 
     if [ $? -eq 0 ]; then
-        echo "[INFO] Creating user $FTP_USR"
+        mylog "[INFO] Creating user $FTP_USR"
         PASSWD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w $PWD_LENGHT | head -n 1) 
 
 #        useradd $FTP_USR --ingroup $FTP_GRP --shell /bin/false --home $APACHE_WEB_DIR$DEFAULT_SITE -p $PASSWD
@@ -339,8 +342,8 @@ echo "This script is only allowed for superuser."
   exit 0
 fi
 if [ "$SUDO_USER" = "root" ]; then
-  /bin/echo "You must start this under your regular user account (not root) using sudo."
-  /bin/echo "Rerun using: sudo $0 $*"
+  echo "You must start this under your regular user account (not root) using sudo."
+  echo "Rerun using: sudo $0 $*"
   exit 1
 fi
 
@@ -350,7 +353,7 @@ fi
 # ------------------------------------------------------------------------------ #
 # Parsing all parameters
 
-while getopts ":H:d:p:f:m:l:c:v:s:h:" opt; do
+while getopts ":H:d:p:f:m:l:c:v:s:t:h:" opt; do
     case "$opt" in
 	H)  HOST="$OPTARG";;
 	d)  DOMAINS="$OPTARG";;
@@ -361,6 +364,8 @@ while getopts ":H:d:p:f:m:l:c:v:s:h:" opt; do
 	c)  CMS="$OPTARG";;	
 	v)  CMS_VERSION="$OPTARG";;	
         s)  SUBDOMAIN="$OPTARG";;
+	t)  LOG_TYPE="$OPTARG";;
+
 	
 	h)  # print usage
             usage
@@ -376,7 +381,6 @@ while getopts ":H:d:p:f:m:l:c:v:s:h:" opt; do
             ;;
     esac
 done
-
 
 
 if [ $CMS == "sf2" ]; then

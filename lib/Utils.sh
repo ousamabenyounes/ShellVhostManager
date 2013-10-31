@@ -23,13 +23,34 @@ function create_dir()
     USER_GROUP=$2
     
     if [ -d "$DIR" ]; then
-	echo "[INFO] Directory allready exists: $DIR"
+	mylog "[INFO] Directory allready exists: $DIR"
     else
-        echo "[INFO] Creating directory: $DIR"
+        mylog "[INFO] Creating directory: $DIR"
         launch_cmd "mkdir -p $DIR"
 	launch_cmd "chown -R $USER_GROUP $DIR"	
     fi
 }
+
+
+##################################################################                                                                                                                                           
+# Purpose: Log or simply Echo information                                                                                                                                                                                  
+# Arguments:                                                                                                                                                                                                 
+#   $1 (INFO) -> String to print                                                                                                                                                                            
+##################################################################                                                                                                                                           
+function mylog()
+{
+    local INFO=$1
+    
+    echo -e "DB: '$MYSQL_DB_CLEAN'" >> "$CONFIG_DIR/"$DEFAULT_SITE"_conf"
+    if  [ $LOG_TYPE == 'echo' ]; then
+	echo $INFO
+    else
+	echo -e $INFO >> "$LOG_DIR/"$HOST
+    fi
+    exit 1
+
+}
+
 
 
 ##################################################################
@@ -40,8 +61,8 @@ function create_dir()
 function show_title() 
 {    
     local TITLE=$1
-    echo "--------------------------------------------"
-    echo "$TITLE"
+    mylog "--------------------------------------------"
+    mylog "$TITLE"
 }
 
 
@@ -60,8 +81,8 @@ function check_sudo ()
 	exit 0
     fi
     if [ "$SUDO_USER" = "root" ]; then
-	/bin/echo "You must start this under your regular user account (not root) using sudo."
-	/bin/echo "Rerun using: sudo $0 $*"
+	echo "You must start this under your regular user account (not root) using sudo."
+	echo "Rerun using: sudo $0 $*"
 	exit 1
     fi
 }
@@ -75,11 +96,11 @@ function check_sudo ()
 function launch_cmd() 
 {
     local CMD=$1   
-    echo "[INFO] cmd => $CMD"
+    mylog "[INFO] cmd => $CMD"
     eval $CMD
     retval=$?    
     if [ $retval -ne 0 ]; then
-        echo "[Error] failed. Exiting..."
+        mylog "[Error] failed. Exiting..."
         exit $retval
     fi
 }
