@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source "../lib/Utils.sh"
+source $(pwd)"/lib/Utils.sh"
 
 #================================================================================
 # ShellVhostManager.sh
@@ -34,9 +34,11 @@ WORDPRESS_LASTVERSION="latest"
 SF2_LASTVERSION="2.3.5"
 TPL_FILE="vhost.tpl"
 SUB_DOMAIN=""
-CONFIG_DIR="/home/ousama/project/ous/shell/ShellVhostManager/myhostconf"
-LOG_DIR="/home/ousama/project/ous/shell/ShellVhostManager/log"
+CONFIG_DIR=$(pwd)"/myhostconf"
+LOG_DIR=$(pwd)"/log"
 LOG_TYPE="echo"
+
+
 
 # ************************************************************** #
 # Print help message
