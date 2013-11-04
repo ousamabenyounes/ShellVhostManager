@@ -41,13 +41,11 @@ function mylog()
 {
     local INFO=$1
     
-    echo -e "DB: '$MYSQL_DB_CLEAN'" >> "$CONFIG_DIR/"$DEFAULT_SITE"_conf"
     if  [ $LOG_TYPE == 'echo' ]; then
 	echo $INFO
     else
 	echo -e $INFO >> "$LOG_DIR/"$HOST
     fi
-    exit 1
 
 }
 

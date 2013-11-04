@@ -34,8 +34,8 @@ WORDPRESS_LASTVERSION="latest"
 SF2_LASTVERSION="2.3.5"
 TPL_FILE="vhost.tpl"
 SUB_DOMAIN=""
-CONFIG_DIR="../myhostconf"
-LOG_DIR="../log"
+CONFIG_DIR="/home/ousama/project/ous/shell/ShellVhostManager/myhostconf"
+LOG_DIR="/home/ousama/project/ous/shell/ShellVhostManager/log"
 LOG_TYPE="echo"
 
 # ************************************************************** #
