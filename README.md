@@ -68,6 +68,9 @@ Here is the Generated VHOST content:
 - Lamp Basics (Apache, MySql, Php)
   
 #Todo
+Add others web project content:  
+- Cloud opensource project (owncloud or seafile...)  
+- Git clone repository  
 Fix Linux compatibility issues (apache home directory, log change...)  
 Add Nginx feature (asked by Melvyn)  
 Check /etc/hosts content before updating  
