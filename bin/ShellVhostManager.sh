@@ -32,6 +32,7 @@ CMS_VERSION="LASTVERSION"
 PRESTASHOP_LASTVERSION="1.5.5.0"
 WORDPRESS_LASTVERSION="latest"
 SF2_LASTVERSION="2.3.5"
+SEAFILE_LASTVERSION='2.0.4'
 TPL_FILE="vhost.tpl"
 SUB_DOMAIN=""
 CONFIG_DIR=$(pwd)"/myhostconf"
@@ -52,7 +53,7 @@ usage () {
     echo "  -f: Ftp User Name (will generate user pwd)"
     echo "  -m: Mysql username (will generate user pwd) DB name will be the host name"
     echo "  -l: Passwords length. (default 10 chars)"
-    echo "  -c: CMS/Framework to install (allowed values are: wordpress, prestashop, sf2, import)"  
+    echo "  -c: CMS/Framework to install (allowed values are: wordpress, prestashop, sf2, seafile, import)"  
     echo "  -v: CMS/Framework Version (By Default last version is allready set)"
     echo "  -s: Subdomain."
     echo "  -h: Print this Help."
@@ -183,6 +184,27 @@ get_last_version() {
 	DOWNLOAD_CMS_VERSION_VAR=$CMS_UPPER"_LASTVERSION"
 	eval CMS_VERSION=\$$DOWNLOAD_CMS_VERSION_VAR
     fi
+}
+
+
+
+
+install_seafile() {
+
+    get_last_version
+    show_title "Installing Seafile V"$CMS_VERSION
+    launch_cmd "cd /tmp"
+
+    SEAFILE_ARCHI="i386"
+    ARCHI=$(uname -m)
+    if [ $ACRHI == "x86_64" ]; then
+	SEAFILE_ARCHI="x86-64"
+    fi    
+    launch_cmd "wget -O seafile.tgz http://seafile.googlecode.com/files/seafile-server_"$CMS_VERSION"_"$SEAFILE_ARCHI".tar.gz"
+    launch_cmd "tar xvzf seafile.tgz > /dev/null"
+    move_cms_tmp_to_vhost_dir "seafile-server_"$CMS_VERSION
+    launch_cmd "chown -R $FTP_USR:$FTP_GRP $APACHE_WEB_DIR$DEFAULT_SITE"
+    launch_cmd "sudo apt-get -y install python2.7 python-setuptools python-simplejson python-imaging sqlite3" 
 }
 
 
