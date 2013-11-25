@@ -9,7 +9,7 @@ source $(pwd)"/lib/Utils.sh"
 #================================================================================
 
 
-TEMPLATE_DIR="../templates/"
+TEMPLATE_DIR=$(pwd)"/templates/"
 WWW="www"
 APACHE_WEB_DIR="/var/www/"
 APACHE_LOG_DIR="/var/log/apache2/"
@@ -197,14 +197,14 @@ install_seafile() {
 
     SEAFILE_ARCHI="i386"
     ARCHI=$(uname -m)
-    if [ $ACRHI == "x86_64" ]; then
+    if [ $ARCHI == "x86_64" ]; then
 	SEAFILE_ARCHI="x86-64"
-    fi    
+    fi  
     launch_cmd "wget -O seafile.tgz http://seafile.googlecode.com/files/seafile-server_"$CMS_VERSION"_"$SEAFILE_ARCHI".tar.gz"
-    launch_cmd "tar xvzf seafile.tgz > /dev/null"
-    move_cms_tmp_to_vhost_dir "seafile-server_"$CMS_VERSION
+    launch_cmd "tar xvzf seafile.tgz  > /dev/null"
+    move_cms_tmp_to_vhost_dir "seafile-server-"$CMS_VERSION
     launch_cmd "chown -R $FTP_USR:$FTP_GRP $APACHE_WEB_DIR$DEFAULT_SITE"
-    launch_cmd "sudo apt-get -y install python2.7 python-setuptools python-simplejson python-imaging sqlite3" 
+    launch_cmd "sudo apt-get -y install python2.7 python-setuptools python-simplejson python-imaging sqlite3 python-mysqldb" 
 }
 
 
