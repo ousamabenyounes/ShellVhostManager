@@ -1,7 +1,5 @@
 #!/bin/bash
 
-source $(pwd)"/lib/Utils.sh"
-
 #================================================================================
 # ShellVhostManager.sh
 
@@ -9,35 +7,8 @@ source $(pwd)"/lib/Utils.sh"
 #================================================================================
 
 
-TEMPLATE_DIR=$(pwd)"/templates/"
-WWW="www"
-APACHE_WEB_DIR="/var/www/"
-APACHE_LOG_DIR="/var/log/apache2/"
-APACHEGRP="www-data"
-APACHE_WEB_USR="$APACHEGRP:$APACHEGRP"
-APACHE_LOG_USR="root:root"
-FTP_USR=""
-MYSQL_USR=""
-MYSQL_PWD=""
-MYSQL_DB=""
-MYSQL_ADMINISTRATOR_USR="root" #You Must specify here your mysql admin account (db & user create)
-FTP_GRP="ftpusers"
-PWD_LENGHT=8
-VHOST_CONF=""
-WP_ADMIN_EMAIL=""
-MAIN_HOST=""
-DEFAULT_SITE=""
-CMS="prestashop"
-CMS_VERSION="LASTVERSION"
-PRESTASHOP_LASTVERSION="1.5.5.0"
-WORDPRESS_LASTVERSION="latest"
-SF2_LASTVERSION="2.3.5"
-SEAFILE_LASTVERSION='2.0.4'
-TPL_FILE="vhost.tpl"
-SUB_DOMAIN=""
-CONFIG_DIR=$(pwd)"/myhostconf"
-LOG_DIR=$(pwd)"/log"
-LOG_TYPE="echo"
+source $(pwd)"/lib/Utils.sh"
+source $(pwd)"/conf.sh"
 
 
 
@@ -136,6 +107,7 @@ function create_vhost_conf () {
         DEFAULT_SITE="$SUBDOMAIN.$HOST.$1"
     fi
 
+    launch_cmd "echo \"alias $DEFAULT_SITE='cd $APACHE_WEB_DIR$DEFAULT_SITE'\" >> ~/.bashrc "
     # Create site vhost file
     mylog "[INFO] Creating virtualhost file: $SUBDOMAIN_SITE"    
     
@@ -300,12 +272,12 @@ create_mysql_user() {
     
     MYSQL_DB_CLEAN=$(clean_string $MYSQL_DB) 
     
-    read -s -p "Please enter $MYSQL_ADMINISTRATOR_USR MySQL Password: " ADMINISTRATOR_PWD
+    
 
     # Generate random pwd for the new user
     MYSQL_PWD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w $PWD_LENGHT | head -n 1)
 
-    launch_cmd "mysql -u $MYSQL_ADMINISTRATOR_USR -p$ADMINISTRATOR_PWD -e \"CREATE DATABASE IF NOT EXISTS $MYSQL_DB_CLEAN; GRANT ALL PRIVILEGES ON $MYSQL_DB_CLEAN.* TO $MYSQL_USR@localhost IDENTIFIED BY '$MYSQL_PWD'\" "
+    launch_cmd "mysql -u $MYSQL_ADMINISTRATOR_USR -p$MYSQL_ADMINISTRATOR_PWD -e \"CREATE DATABASE IF NOT EXISTS $MYSQL_DB_CLEAN; GRANT ALL PRIVILEGES ON $MYSQL_DB_CLEAN.* TO $MYSQL_USR@localhost IDENTIFIED BY '$MYSQL_PWD'\" "
     echo -e "******************************************" >> "$CONFIG_DIR/"$DEFAULT_SITE"_conf"
     echo -e "[MYSQL CREDENTIALS]" >> "$CONFIG_DIR/"$DEFAULT_SITE"_conf"
     echo -e "DB: '$MYSQL_DB_CLEAN'" >> "$CONFIG_DIR/"$DEFAULT_SITE"_conf"
