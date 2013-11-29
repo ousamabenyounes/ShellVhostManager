@@ -7,6 +7,13 @@ This script will help you earn time and let you focus on managing your contents.
 
 This shell script was developped & tested on an Ubuntu 12.10 
 
+Configuration
+=================
+
+First, rename conf.sh.dist to conf.sh  
+And then you must just specify your mysql administrator login & password.  
+
+
 Usage
 =================
 
