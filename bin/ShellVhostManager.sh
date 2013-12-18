@@ -24,7 +24,7 @@ usage () {
     echo "  -f: Ftp User Name (will generate user pwd)"
     echo "  -m: Mysql username (will generate user pwd) DB name will be the host name"
     echo "  -l: Passwords length. (default 10 chars)"
-    echo "  -c: CMS/Framework to install (allowed values are: wordpress, prestashop, sf2, seafile, import)"  
+    echo "  -c: CMS/Framework to install (allowed values are: wordpress, prestashop, sf2, owncloud, seafile, import)"  
     echo "  -v: CMS/Framework Version (By Default last version is allready set)"
     echo "  -s: Subdomain."
     echo "  -h: Print this Help."
@@ -179,6 +179,24 @@ install_seafile() {
     launch_cmd "sudo apt-get -y install python2.7 python-setuptools python-simplejson python-imaging sqlite3 python-mysqldb" 
 }
 
+install_owncloud() {
+
+    get_last_version
+    show_title "Installing OwnCloud V"$CMS_VERSION
+    launch_cmd "cd /tmp"
+    launch_cmd "wget -O owncloud.tar.bz2 http://download.owncloud.org/community/owncloud-"$CMS_VERSION".tar.bz2"
+    launch_cmd "tar xjf owncloud.tar.bz2  > /dev/null"
+    move_cms_tmp_to_vhost_dir "owncloud"
+    launch_cmd "sudo apt-get install apache2 php5 php5-gd php-xml-parser php5-intl"
+    launch_cmd "sudo apt-get install php5-sqlite php5-mysql smbclient curl libcurl3 php5-curl"
+#    launch_cmd "sudo chown ww-data:www-data "$APACHE_WEB_DIR$DEFAULT_SITE"/install/data"
+    launch_cmd "chown -R $FTP_USR:$FTP_GRP $APACHE_WEB_DIR$DEFAULT_SITE"
+    launch_cmd "chown -R $APACHE_WEB_USR $APACHE_WEB_DIR$DEFAULT_SITE/config"
+    launch_cmd "chown -R $APACHE_WEB_USR $APACHE_WEB_DIR$DEFAULT_SITE/apps"
+    create_dir $APACHE_WEB_DIR$DEFAULT_SITE"/data" $APACHE_WEB_USR
+    
+
+}
 
 
 install_sf2() {
