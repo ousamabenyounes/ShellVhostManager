@@ -225,6 +225,18 @@ install_prestashop() {
     launch_cmd "unzip prestashop_"$CMS_VERSION".zip > /dev/null"    
     move_cms_tmp_to_vhost_dir "prestashop"
     launch_cmd "chown -R $FTP_USR:$FTP_GRP $APACHE_WEB_DIR$DEFAULT_SITE"
+    launch_cmd "chmod -R 777 $APACHE_WEB_DIR$DEFAULT_SITE/config/"
+    launch_cmd "chmod -R 777 $APACHE_WEB_DIR$DEFAULT_SITE/cache/"
+    launch_cmd "chmod -R 777 $APACHE_WEB_DIR$DEFAULT_SITE/log/"
+    launch_cmd "chmod -R 777 $APACHE_WEB_DIR$DEFAULT_SITE/img/"
+    launch_cmd "chmod -R 777 $APACHE_WEB_DIR$DEFAULT_SITE/mails/"
+    launch_cmd "chmod -R 777 $APACHE_WEB_DIR$DEFAULT_SITE/modules/"
+    launch_cmd "chmod -R 777 $APACHE_WEB_DIR$DEFAULT_SITE/themes/default/lang/"
+    launch_cmd "chmod -R 777 $APACHE_WEB_DIR$DEFAULT_SITE/themes/default/cache/"
+    launch_cmd "chmod -R 777 $APACHE_WEB_DIR$DEFAULT_SITE/translations/"
+    launch_cmd "chmod -R 777 $APACHE_WEB_DIR$DEFAULT_SITE/upload/"
+    launch_cmd "chmod -R 777 $APACHE_WEB_DIR$DEFAULT_SITE/download/"
+
 }
 
 

@@ -94,7 +94,8 @@ function check_sudo ()
 function launch_cmd() 
 {
     local CMD=$1   
-    mylog "[INFO] cmd => $CMD"
+    now=$(date)
+    mylog "[INFO] [$now] cmd => $CMD"
     eval $CMD
     retval=$?    
     if [ $retval -ne 0 ]; then
