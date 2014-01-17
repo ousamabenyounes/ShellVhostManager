@@ -15,7 +15,7 @@ source $(pwd)"/conf.sh"
 # ************************************************************** #
 # Print help message
 
-usage () {
+function usage () {
     
     echo "Usage: ShellVhostManager.sh -H -p -d -f -m -l -c -v -s -h -t"
     echo "  -H: Host ."
@@ -37,7 +37,7 @@ usage () {
 # ************************************************************** #
 # Import project from FTP host/login/pwd => Mysql dump / Apache Vhost / Source download
 
-install_import() {
+function install_import() {
 
     show_title "Importing project from External Host"
 
@@ -91,7 +91,6 @@ function create_vhost_conf () {
 	fi
     }
 
-
     # Create Default Site web & log directories
     DEFAULT_SITE="$HOST.$1"
     create_dir $APACHE_WEB_DIR$DEFAULT_SITE $APACHE_WEB_USR
@@ -138,8 +137,8 @@ function create_logrotate_conf()
 
 
 
-move_cms_tmp_to_vhost_dir () {
-    
+function move_cms_tmp_to_vhost_dir () 
+{    
     CMS=$1
 
     launch_cmd "sudo cp -R $CMS/* $APACHE_WEB_DIR$MAIN_HOST"
@@ -149,8 +148,8 @@ move_cms_tmp_to_vhost_dir () {
 
 
 
-get_last_version() {
-    
+function get_last_version() 
+{    
     CMS_UPPER=${CMS^^}        
     if [ $CMS_VERSION == "LASTVERSION" ]; then
 	DOWNLOAD_CMS_VERSION_VAR=$CMS_UPPER"_LASTVERSION"
@@ -161,8 +160,8 @@ get_last_version() {
 
 
 
-install_seafile() {
-
+function install_seafile() 
+{
     get_last_version
     show_title "Installing Seafile V"$CMS_VERSION
     launch_cmd "cd /tmp"
@@ -179,8 +178,8 @@ install_seafile() {
     launch_cmd "sudo apt-get -y install python2.7 python-setuptools python-simplejson python-imaging sqlite3 python-mysqldb" 
 }
 
-install_owncloud() {
-
+function install_owncloud() 
+{
     get_last_version
     show_title "Installing OwnCloud V"$CMS_VERSION
     launch_cmd "cd /tmp"
@@ -194,13 +193,11 @@ install_owncloud() {
     launch_cmd "chown -R $APACHE_WEB_USR $APACHE_WEB_DIR$DEFAULT_SITE/config"
     launch_cmd "chown -R $APACHE_WEB_USR $APACHE_WEB_DIR$DEFAULT_SITE/apps"
     create_dir $APACHE_WEB_DIR$DEFAULT_SITE"/data" $APACHE_WEB_USR
-    
-
 }
 
 
-install_sf2() {
-
+function install_sf2() 
+{
     get_last_version
     show_title "Installing Symfony2 V"$CMS_VERSION
     launch_cmd "cd /tmp"
@@ -216,8 +213,8 @@ install_sf2() {
 # ************************************************************** #
 # Download Prestashop v1.5.5.0 and copy file to the vhost dir
 
-install_prestashop() {
-    
+function install_prestashop() 
+{    
     get_last_version
     show_title "Installing prestashop V"$CMS_VERSION
     launch_cmd "cd /tmp"
@@ -243,8 +240,8 @@ install_prestashop() {
 # ************************************************************** #
 # Install Wordpress on the default Vhost Directory
 
-install_wordpress() {
-
+function install_wordpress() 
+{
     get_last_version
 
     if [ $CMS_VERSION != 'latest' ]; then
@@ -281,8 +278,8 @@ install_wordpress() {
 }
 
 
-clean_string() {
-    
+function clean_string() 
+{    
     CLEAN_STR=${1/ //}
     CLEAN_STR=${CLEAN_STR/_//}
     CLEAN_STR=${CLEAN_STR/-//}
@@ -295,15 +292,12 @@ clean_string() {
 # ************************************************************** #
 # Create MySQL User needed for the installed CMS
 
-create_mysql_user() {
-    
+function create_mysql_user() 
+{    
     MYSQL_USR=$1
     MYSQL_DB=$2
     
     MYSQL_DB_CLEAN=$(clean_string $MYSQL_DB) 
-    
-    
-
     # Generate random pwd for the new user
     MYSQL_PWD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w $PWD_LENGHT | head -n 1)
 
@@ -313,7 +307,6 @@ create_mysql_user() {
     echo -e "DB: '$MYSQL_DB_CLEAN'" >> "$CONFIG_DIR/"$DEFAULT_SITE"_conf"
     echo -e "USER: '$MYSQL_USR'" >> "$CONFIG_DIR/"$DEFAULT_SITE"_conf"
     echo -e "PASSWORD: '$MYSQL_PWD'\n" >> "$CONFIG_DIR/"$DEFAULT_SITE"_conf"
-    
 }
 
 
@@ -321,8 +314,8 @@ create_mysql_user() {
 # ************************************************************** #
 # Create FTP User needed for the installed CMS
 
-create_ftp_user() {
-
+function create_ftp_user() 
+{
     FTP_USR=$1
     DB_NAME=$2
     
@@ -333,6 +326,8 @@ create_ftp_user() {
 	launch_cmd "addgroup $FTP_GRP"
     fi
 
+
+    
     # Try to find ftpusr or create it 
     check_existing_inf $FTP_USR /etc/passwd user 
 
@@ -352,12 +347,6 @@ create_ftp_user() {
 }
 
 
-
-
-
-
-
-
 # ------------------------------------------------------------------------------ #
 # Check if user is allowed to use this script
 
@@ -374,39 +363,84 @@ if [ "$SUDO_USER" = "root" ]; then
 fi
 
 
+function lamp_init()
+{
+    launch_cmd "sudo apt-get -y install lamp-server^"
+    launch_cmd "sudo apt-get -y install proftpd"
+    launch_cmd "sudo apt-get -y install logrotate"
+}
 
 
-# ------------------------------------------------------------------------------ #
-# Parsing all parameters
-
-while getopts ":H:d:p:f:m:l:c:v:s:t:h:" opt; do
-    case "$opt" in
-	H)  HOST="$OPTARG";;
-	d)  DOMAINS="$OPTARG";;
-	p)  PROJECT="$OPTARG";;
-	f)  FTP_USR="$OPTARG";;
-	m)  MYSQL_USR="$OPTARG";;
-	l)  PWD_LENGHT="$OPTARG";;
-	c)  CMS="$OPTARG";;	
-	v)  CMS_VERSION="$OPTARG";;	
-        s)  SUBDOMAIN="$OPTARG";;
-	t)  LOG_TYPE="$OPTARG";;
-
-	
-	h)  # print usage
-            usage
-            exit 0
-            ;;
-	:)  echo "Error: -$option requires an argument"
-            usage
+while [[ $1 == -* ]]; do
+    case "$1" in
+      -H|--host|-\?) if (($# > 1)); then
+            HOST=$2; shift 2
+          else 
+            echo "--host requires an argument" 1>&2
             exit 1
-            ;;
-	?)  echo "Error: unknown option -$option"
-            usage
+      fi ;;
+      -d|--domains|-\?) if (($# > 1)); then
+            DOMAINS=$2; shift 2
+          else
+            echo "--domains requires an argument" 1>&2
             exit 1
-            ;;
+      fi ;;
+      -p|--project|-\?) if (($# > 1)); then
+            PROJECT=$2; shift 2
+          else
+            echo "--project requires an argument" 1>&2
+            exit 1
+      fi ;;
+      -f|--ftpuser|-\?) if (($# > 1)); then
+           FTP_USR=$2; shift 2
+        else
+           echo "--ftpuser requires an argument" 1>&2
+           exit 1
+      fi ;;
+      -m|--mysqluser|-\?) if (($# > 1)); then
+           MYSQL_USR=$2; shift 2
+        else
+           echo "--mysqluser requires an argument" 1>&2
+           exit 1
+      fi ;;
+      --passwordlenght|-\?) if (($# > 1)); then
+           PWD_LENGHT=$2; shift 2
+        else
+           echo "--passwordlenght requires an argument" 1>&2
+           exit 1
+      fi ;;
+      -c|--cms|-\?) if (($# > 1)); then
+           CMS=$2; shift 2
+        else
+           echo "--cms requires an argument" 1>&2
+           exit 1
+      fi ;;
+      -v|--cmsversion|-\?) if (($# > 1)); then
+           CMS_VERSION=$2; shift 2
+        else
+           echo "--cmsversion requires an argument" 1>&2
+           exit 1
+      fi ;;
+      -s|--subdomain|-\?) if (($# > 1)); then
+           SUBDOMAIN=$2; shift 2
+        else
+           echo "--subdomain requires an argument" 1>&2
+           exit 1
+      fi ;;
+      -t|--logtype|-\?) if (($# > 1)); then
+           LOG_TYPE=$2; shift 2
+        else
+           echo "--logtype requires an argument" 1>&2
+           exit 1
+      fi ;;
+      --lampinit|-\?) lamp_init; exit 0 ;; 
+      -h|--help|-\?) usage; exit 0;;
+      --) shift; break;;
+      -*) echo "invalid option: $1" 1>&2; usage; exit 1;;
     esac
 done
+
+
 
 
 if [ $CMS == "sf2" ]; then
@@ -427,3 +461,5 @@ if [ "$MYSQL_USR" != "" ] && [ $CMS != "" ]; then
     launch_cmd "install_$CMS"
 fi
 
+
+launch_cmd "cd && source .bashrc"
