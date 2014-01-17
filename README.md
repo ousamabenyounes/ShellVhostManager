@@ -75,6 +75,7 @@ Here is the Generated VHOST content:
 - Lamp Basics (Apache, MySql, Php)
   
 #Todo
+- fix owncloud data directory right?
 - Add Local Cache (like composer's cache => .composer path on home directory)  
 - Add others web project content:  
  Cloud opensource project (owncloud or seafile...)  
