@@ -193,6 +193,7 @@ function install_owncloud()
     launch_cmd "chown -R $APACHE_WEB_USR $APACHE_WEB_DIR$DEFAULT_SITE/config"
     launch_cmd "chown -R $APACHE_WEB_USR $APACHE_WEB_DIR$DEFAULT_SITE/apps"
     create_dir $APACHE_WEB_DIR$DEFAULT_SITE"/data" $APACHE_WEB_USR
+    launch_cmd "chown -R $APACHE_WEB_USR $APACHE_WEB_DIR$DEFAULT_SITE/data"
 }
 
 
