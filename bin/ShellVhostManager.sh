@@ -17,18 +17,19 @@ source $(pwd)"/conf.sh"
 
 function usage () {
     
-    echo "Usage: ShellVhostManager.sh -H -p -d -f -m -l -c -v -s -h -t"
+    echo "Usage: ShellVhostManager.sh -H -p -d -f -m -l -c -v -s -h -t -r"
     echo "  -H: Host ."
     echo "  -p: Project name."
     echo "  -d: Domains(fr|com|net)."
     echo "  -f: Ftp User Name (will generate user pwd)"
     echo "  -m: Mysql username (will generate user pwd) DB name will be the host name"
     echo "  -l: Passwords length. (default 10 chars)"
-    echo "  -c: CMS/Framework to install (allowed values are: wordpress, prestashop, sf2, owncloud, seafile, import)"  
+    echo "  -c: CMS/Framework/Repository to install (allowed values are: wordpress, prestashop, sf2, owncloud, seafile, owncloud, import, git, hg, svn)"  
     echo "  -v: CMS/Framework Version (By Default last version is allready set)"
     echo "  -s: Subdomain."
     echo "  -h: Print this Help."
     echo "  -t: Log Type (echo|file) to get silent mode set it to file."
+    echo "  -r: Repository to clone (git/hg/svn)."
 
     exit 1;
 }
@@ -158,10 +159,29 @@ function get_last_version()
 }
 
 
+function install_git()
+{
+    launch_cmd "cd $APACHE_WEB_DIR$MAIN_HOST"
+    launch_cmd "git clone $REPOSITORY"
+}
+
+
+function install_hg()
+{
+    launch_cmd "cd $APACHE_WEB_DIR$MAIN_HOST"
+    launch_cmd "hg clone $REPOSITORY"
+}
+
+function install_hg()
+{
+    launch_cmd "cd $APACHE_WEB_DIR$MAIN_HOST"
+    launch_cmd "svn checkout $REPOSITORY"
+}
 
 
 function install_seafile() 
 {
+
     get_last_version
     show_title "Installing Seafile V"$CMS_VERSION
     launch_cmd "cd /tmp"
@@ -193,7 +213,6 @@ function install_owncloud()
     launch_cmd "chown -R $APACHE_WEB_USR $APACHE_WEB_DIR$DEFAULT_SITE/config"
     launch_cmd "chown -R $APACHE_WEB_USR $APACHE_WEB_DIR$DEFAULT_SITE/apps"
     create_dir $APACHE_WEB_DIR$DEFAULT_SITE"/data" $APACHE_WEB_USR
-    launch_cmd "chown -R $APACHE_WEB_USR $APACHE_WEB_DIR$DEFAULT_SITE/data"
 }
 
 
@@ -434,6 +453,13 @@ while [[ $1 == -* ]]; do
            echo "--logtype requires an argument" 1>&2
            exit 1
       fi ;;
+      -r|--repository|-\?) if (($# > 1)); then
+            REPOSITORY=$2; shift 2
+          else
+            echo "--respository requires an argument" 1>&2
+            exit 1
+      fi ;;
+
       --lampinit|-\?) lamp_init; exit 0 ;; 
       -h|--help|-\?) usage; exit 0;;
       --) shift; break;;

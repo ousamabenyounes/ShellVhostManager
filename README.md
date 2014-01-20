@@ -24,10 +24,11 @@ Usage
   -f: Ftp User Name (will generate user pwd)  
   -m: Mysql username (will generate user pwd) DB name will be the host name  
   -l: Passwords length. (default 10 chars)  
-  -c: CMS/Framework to install (allowed values are: wordpress, prestashop, sf2, import)  
+  -c: CMS/Framework to install (allowed values are: wordpress, prestashop, sf2, import, git, hg, svn)  
   -v: CMS/Framework Version (By Default last version is allready set)  
   -s: Subdomain.  
   -h: Print this Help.  
+  -r: A repository we want to clone (git/hg/svn)    
 </pre>
 
 Sample
