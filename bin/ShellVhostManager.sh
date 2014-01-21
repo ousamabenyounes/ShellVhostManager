@@ -29,8 +29,8 @@ function usage () {
     echo "  -s: Subdomain."
     echo "  -h: Print this Help."
     echo "  -t: Log Type (echo|file) to get silent mode set it to file."
-    echo "  -r: Repository to clone (git/hg/svn)."
-
+    echo "  -r: Repository url we want to clone (git/hg/svn)."
+ 
     exit 1;
 }
 
