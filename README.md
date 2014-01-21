@@ -17,17 +17,18 @@ And then you must just specify your mysql administrator login & password.
 Usage
 =================
 
-<pre>ShellVhostManager.sh -H -d -p -f -m -l -c -v -s -h -r  
+<pre>ShellVhostManager.sh -H -d -p -f -m -l -c -v -s -h -t -r  
   -H: Host .  
   -p: Project name.  
   -d: Domains(fr|com|net).  
   -f: Ftp User Name (will generate user pwd)  
   -m: Mysql username (will generate user pwd) DB name will be the host name  
   -l: Passwords length. (default 10 chars)  
-  -c: CMS/Framework/Repository to install (allowed values are: wordpress, prestashop, sf2, import, git, hg, svn)  
+  -c: CMS/Framework/Repository to install (allowed values are: wordpress, prestashop, sf2, owncloud, seafile, import, git, hg, svn)  
   -v: CMS/Framework Version (By Default last version is allready set)  
   -s: Subdomain.  
   -h: Print this Help.  
+  -t: Log Type (echo|file) to get silent mode set it to file."  
   -r: Repository url we want to clone (git/hg/svn)    
 </pre>
 
