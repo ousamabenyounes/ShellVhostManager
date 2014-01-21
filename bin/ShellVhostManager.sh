@@ -172,7 +172,7 @@ function install_hg()
     launch_cmd "hg clone $REPOSITORY"
 }
 
-function install_hg()
+function install_svn()
 {
     launch_cmd "cd $APACHE_WEB_DIR$MAIN_HOST"
     launch_cmd "svn checkout $REPOSITORY"
