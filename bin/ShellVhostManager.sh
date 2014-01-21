@@ -29,8 +29,8 @@ function usage () {
     echo "  -s: Subdomain."
     echo "  -h: Print this Help."
     echo "  -t: Log Type (echo|file) to get silent mode set it to file."
-    echo "  -r: Repository url we want to clone (git/hg/svn)."
- 
+    echo "  -r: Repository to clone (git/hg/svn)."
+
     exit 1;
 }
 
@@ -162,20 +162,23 @@ function get_last_version()
 function install_git()
 {
     launch_cmd "cd $APACHE_WEB_DIR$MAIN_HOST"
-    launch_cmd "git clone $REPOSITORY"
+    launch_cmd "git clone $REPOSITORY ."
+    launch_cmd "sudo chown -R $FTP_USR:$FTP_GRP $APACHE_WEB_DIR$MAIN_HOST"
 }
 
 
 function install_hg()
 {
     launch_cmd "cd $APACHE_WEB_DIR$MAIN_HOST"
-    launch_cmd "hg clone $REPOSITORY"
+    launch_cmd "hg clone $REPOSITORY ."
+    launch_cmd "sudo chown -R $FTP_USR:$FTP_GRP $APACHE_WEB_DIR$MAIN_HOST"
 }
 
 function install_svn()
 {
     launch_cmd "cd $APACHE_WEB_DIR$MAIN_HOST"
-    launch_cmd "svn checkout $REPOSITORY"
+    launch_cmd "svn checkout $REPOSITORY ."
+    launch_cmd "sudo chown -R $FTP_USR:$FTP_GRP $APACHE_WEB_DIR$MAIN_HOST"
 }
 
 
