@@ -98,12 +98,12 @@ function create_vhost_conf () {
     create_dir $APACHE_LOG_DIR$DEFAULT_SITE $APACHE_LOG_USR
    
     if [ "$SUBDOMAIN" != "" ]; then
-	create_dir $APACHE_WEB_DIR$DEFAULT_SITE"/subdomains" $APACHE_WEB_USR
-        create_dir $APACHE_WEB_DIR$DEFAULT_SITE"/subdomains/"$SUBDOMAIN.$HOST.$1 $APACHE_WEB_USR
-	create_dir $APACHE_LOG_DIR$DEFAULT_SITE"/subdomains" $APACHE_LOG_USR
-        create_dir $APACHE_LOG_DIR$DEFAULT_SITE"/subdomains/"$SUBDOMAIN.$HOST.$1 $APACHE_LOG_USR
-	APACHE_WEB_DIR=$APACHE_WEB_DIR$DEFAULT_SITE"/subdomains/"
-	APACHE_LOG_DIR=$APACHE_LOG_DIR$DEFAULT_SITE"/subdomains/"
+	create_dir $APACHE_WEB_DIR"/subdomains" $APACHE_WEB_USR
+        create_dir $APACHE_WEB_DIR"/subdomains/"$SUBDOMAIN.$HOST.$1 $APACHE_WEB_USR
+	create_dir $APACHE_LOG_DIR"/subdomains" $APACHE_LOG_USR
+        create_dir $APACHE_LOG_DIR"/subdomains/"$SUBDOMAIN.$HOST.$1 $APACHE_LOG_USR
+	APACHE_WEB_DIR=$APACHE_WEB_DIR"/subdomains/"
+	APACHE_LOG_DIR=$APACHE_LOG_DIR"/subdomains/"
         DEFAULT_SITE="$SUBDOMAIN.$HOST.$1"
     fi
 
