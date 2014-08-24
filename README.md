@@ -17,7 +17,7 @@ And then you must just specify your mysql administrator login & password.
 Usage
 =================
 
-<pre>ShellVhostManager.sh -H -d -p -f -m -l -c -v -s -h -t -r  
+<pre>ShellVhostManager.sh -H -d -p -f -m -l -c -v -s -h -t -r -k
   -H: Host .  
   -p: Project name.  
   -d: Domains(fr|com|net).  
@@ -30,7 +30,8 @@ Usage
   -h: Print this Help.  
   -t: Log Type (echo|file) to get silent mode set it to file."  
   -r: Repository url we want to clone (git/hg/svn)    
-</pre>
+  -k: Keep this vhost protected with htaccess/htpasswd (login|passwd)   
+ </pre>
 
 Sample
 =================
@@ -81,7 +82,6 @@ Here is the Generated VHOST content:
 - Add Local Cache (like composer's cache => .composer path on home directory)  
 - Add others web project content:  
  Cloud opensource project (owncloud or seafile...)  
- Git clone repository  
 - Fix Linux compatibility issues (apache home directory, log change...)  
 - Add Nginx feature (asked by Melvyn)  
 - Check /etc/hosts content before updating  
