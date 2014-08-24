@@ -17,7 +17,7 @@ source $(pwd)"/conf.sh"
 
 function usage () {
     
-    echo "Usage: ShellVhostManager.sh -H -p -d -f -m -l -c -v -s -h -t -r"
+    echo "Usage: ShellVhostManager.sh -H -p -d -f -m -l -c -v -s -h -t -r -k"
     echo "  -H: Host ."
     echo "  -p: Project name."
     echo "  -d: Domains(fr|com|net)."
@@ -30,6 +30,9 @@ function usage () {
     echo "  -h: Print this Help."
     echo "  -t: Log Type (echo|file) to get silent mode set it to file."
     echo "  -r: Repository to clone (git/hg/svn)."
+    echo "  -k: Keep this vhost protected with htaccess/htpasswd (login|passwd)  ."
+
+
 
     exit 1;
 }
@@ -102,12 +105,15 @@ function create_vhost_conf () {
         create_dir $APACHE_WEB_DIR"/subdomains/"$SUBDOMAIN.$HOST.$1 $APACHE_WEB_USR
 	create_dir $APACHE_LOG_DIR"/subdomains" $APACHE_LOG_USR
         create_dir $APACHE_LOG_DIR"/subdomains/"$SUBDOMAIN.$HOST.$1 $APACHE_LOG_USR
-	APACHE_WEB_DIR=$APACHE_WEB_DIR"/subdomains/"
-	APACHE_LOG_DIR=$APACHE_LOG_DIR"/subdomains/"
+	APACHE_WEB_DIR=$APACHE_WEB_DIR"subdomains/"
+	APACHE_LOG_DIR=$APACHE_LOG_DIR"subdomains/"
         DEFAULT_SITE="$SUBDOMAIN.$HOST.$1"
     fi
-
+    
     launch_cmd "echo \"alias $DEFAULT_SITE='cd $APACHE_WEB_DIR$DEFAULT_SITE'\" >> ~/.bashrc "
+    launch_cmd "echo \"alias "$DEFAULT_SITE"_access='tail -f $APACHE_LOG_DIR/$DEFAULT_SITE/access.log'\" >> ~/.bashrc "
+    launch_cmd "echo \"alias "$DEFAULT_SITE"_error='tail -f $APACHE_LOG_DIR/$DEFAULT_SITE/error.log'\" >> ~/.bashrc "
+
     # Create site vhost file
     mylog "[INFO] Creating virtualhost file: $SUBDOMAIN_SITE"    
     
@@ -462,6 +468,13 @@ while [[ $1 == -* ]]; do
             echo "--respository requires an argument" 1>&2
             exit 1
       fi ;;
+      
+      -k|--keep-private|-\?) if (($# > 1)); then
+            HTACCESS_CONFIG=$2; shift 2
+          else
+            echo "--keep-private requires an argument" 1>&2
+            exit 1
+      fi ;;
 
       --lampinit|-\?) lamp_init; exit 0 ;; 
       -h|--help|-\?) usage; exit 0;;
@@ -469,8 +482,6 @@ while [[ $1 == -* ]]; do
       -*) echo "invalid option: $1" 1>&2; usage; exit 1;;
     esac
 done
-
-
 
 
 if [ $CMS == "sf2" ]; then
@@ -489,6 +500,14 @@ fi
 
 if [ "$MYSQL_USR" != "" ] && [ $CMS != "" ]; then
     launch_cmd "install_$CMS"
+fi
+
+  # Generate Htaccess/Htpasswd file to protect the current vhost                                                                             
+if [ "$HTACCESS_CONFIG" != "" ]; then
+    IFS='|' read -a login_pwd <<< "${HTACCESS_CONFIG}"
+    output=$(htpasswd -nb ${login_pwd[0]} ${login_pwd[1]})
+    echo $output > $APACHE_WEB_DIR$DEFAULT_SITE"/.htpasswd"
+    echo -e "AuthType Basic\nAuthName \"Accès privé projet\"\nAuthUserFile "$APACHE_WEB_DIR$DEFAULT_SITE"/.htpasswd\nRequire valid-user" > $APACHE_WEB_DIR$DEFAULT_SITE"/.htaccess"
 fi
 
 
