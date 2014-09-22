@@ -111,8 +111,8 @@ function create_vhost_conf () {
     fi
     
     launch_cmd "echo \"alias $DEFAULT_SITE='cd $APACHE_WEB_DIR$DEFAULT_SITE'\" >> ~/.bashrc "
-    launch_cmd "echo \"alias "$DEFAULT_SITE"_access='tail -f $APACHE_LOG_DIR/$DEFAULT_SITE/access.log'\" >> ~/.bashrc "
-    launch_cmd "echo \"alias "$DEFAULT_SITE"_error='tail -f $APACHE_LOG_DIR/$DEFAULT_SITE/error.log'\" >> ~/.bashrc "
+    launch_cmd "echo \"alias "$DEFAULT_SITE"_access='tail -f $APACHE_LOG_DIR$DEFAULT_SITE/access.log'\" >> ~/.bashrc "
+    launch_cmd "echo \"alias "$DEFAULT_SITE"_error='tail -f $APACHE_LOG_DIR$DEFAULT_SITE/error.log'\" >> ~/.bashrc "
 
     # Create site vhost file
     mylog "[INFO] Creating virtualhost file: $SUBDOMAIN_SITE"    
@@ -120,8 +120,8 @@ function create_vhost_conf () {
 # cat $TEMPLATE_DIR$TPL_FILE | sed "s/\${HOST}/${DEFAULT_SITE}/"  | sed "s|\${ALIAS}|$ALIAS|"  | sed "s|\${APACHE_LOG_DIR}|$APACHE_LOG_DIR|" | 
 #sed "s|\${APACHE_WEB_DIR}|${APACHE_WEB_DIR}|"
     cat $TEMPLATE_DIR$TPL_FILE | sed "s/\${HOST}/${DEFAULT_SITE}/"  | sed "s|\${ALIAS}|$ALIAS|" |  sed "s|\${APACHE_LOG_DIR}|$APACHE_LOG_DIR|" | sed "s|\${APACHE_WEB_DIR}|${APACHE_WEB_DIR}|" > "/tmp/${DEFAULT_SITE}"       
-    launch_cmd "mv /tmp/${DEFAULT_SITE} /etc/apache2/sites-available/${DEFAULT_SITE}"
-    launch_cmd "a2ensite $DEFAULT_SITE"
+    launch_cmd "mv /tmp/${DEFAULT_SITE} /etc/apache2/sites-available/${DEFAULT_SITE}.conf"
+    launch_cmd "a2ensite "$DEFAULT_SITE".conf"
     launch_cmd "/etc/init.d/apache2 reload"   
     MAIN_HOST=$DEFAULT_SITE
 
