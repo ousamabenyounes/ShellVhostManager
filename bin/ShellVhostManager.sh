@@ -17,7 +17,8 @@ source $(pwd)"/conf.sh"
 
 function usage () {
     
-    echo "Usage: ShellVhostManager.sh -H -p -d -f -m -l -c -v -s -h -t -r -k"
+    echo "Usage: ShellVhostManager.sh -D -H -p -d -f -m -l -c -v -s -h -t -r -k "
+    echo "  -D: MySQL DB_NAME ."
     echo "  -H: Host ."
     echo "  -p: Project name."
     echo "  -d: Domains(fr|com|net)."
@@ -476,6 +477,14 @@ while [[ $1 == -* ]]; do
             exit 1
       fi ;;
 
+      -D|--db-name|-\?) if (($# > 1)); then
+            DB_NAME=$2; shift 2
+          else
+            echo "--db-name requires an argument" 1>&2
+            exit 1
+      fi ;;
+
+
       --lampinit|-\?) lamp_init; exit 0 ;; 
       -h|--help|-\?) usage; exit 0;;
       --) shift; break;;
@@ -495,7 +504,7 @@ if [ "$FTP_USR" != "" ]; then
 fi
 
 if [ "$MYSQL_USR" != "" ]; then
-    create_mysql_user $MYSQL_USR $HOST
+    create_mysql_user $MYSQL_USR $DB_NAME
 fi
 
 if [ "$MYSQL_USR" != "" ] && [ $CMS != "" ]; then
