@@ -326,7 +326,6 @@ function create_mysql_user()
 {    
     MYSQL_USR=$1
     MYSQL_DB=$2
-    
     MYSQL_DB_CLEAN=$(clean_string $MYSQL_DB) 
     # Generate random pwd for the new user
     MYSQL_PWD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w $PWD_LENGHT | head -n 1)
@@ -347,7 +346,6 @@ function create_mysql_user()
 function create_ftp_user() 
 {
     FTP_USR=$1
-    DB_NAME=$2
     
     # Try to search ftpgrp or create it
     check_existing_inf $FTP_GRP /etc/group group
@@ -483,8 +481,6 @@ while [[ $1 == -* ]]; do
             echo "--db-name requires an argument" 1>&2
             exit 1
       fi ;;
-
-
       --lampinit|-\?) lamp_init; exit 0 ;; 
       -h|--help|-\?) usage; exit 0;;
       --) shift; break;;
@@ -500,7 +496,7 @@ create_vhost_conf $DOMAINS $PROJECT
 create_logrotate_conf
 echo -e "--------------- CONFIG FILE FOR HOST $DEFAULT_SITE --------------\n\n" > "$CONFIG_DIR/"$DEFAULT_SITE"_conf"
 if [ "$FTP_USR" != "" ]; then
-    create_ftp_user $FTP_USR
+    create_ftp_user $FTP_USR 
 fi
 
 if [ "$MYSQL_USR" != "" ]; then
