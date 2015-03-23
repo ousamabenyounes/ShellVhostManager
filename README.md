@@ -38,7 +38,7 @@ Sample
 
 
 
-    $ ./bin/ShellVhostManager.sh -p myprojects -H prestashop -d "fr|com|tk" -f ous -c prestashop -m ous
+    $ ./bin/ShellVhostManager.sh -p myprojects -H prestashop -d "fr|com|tk" -f ous -c prestashop -m DbUsr -D DbName
 
 - First This will create web root directory (/var/www/myprojects/prestashop.fr/
 - Create log directory & files (/var/log/apache2/myprojects/prestashop.fr/error.log & access.log
