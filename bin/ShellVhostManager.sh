@@ -111,9 +111,9 @@ function create_vhost_conf () {
         DEFAULT_SITE="$SUBDOMAIN.$HOST.$1"
     fi
     
-    launch_cmd "echo \"alias $DEFAULT_SITE='cd $APACHE_WEB_DIR$DEFAULT_SITE'\" >> ~/.bashrc "
-    launch_cmd "echo \"alias "$DEFAULT_SITE"_access='tail -f $APACHE_LOG_DIR$DEFAULT_SITE/access.log'\" >> ~/.bashrc "
-    launch_cmd "echo \"alias "$DEFAULT_SITE"_error='tail -f $APACHE_LOG_DIR$DEFAULT_SITE/error.log'\" >> ~/.bashrc "
+    launch_cmd "echo \"alias $DEFAULT_SITE='cd $APACHE_WEB_DIR$DEFAULT_SITE'\" >> "$SHELL_INIT
+    launch_cmd "echo \"alias "$DEFAULT_SITE"_access='tail -f $APACHE_LOG_DIR$DEFAULT_SITE/access.log'\" >> "$SHELL_INIT
+    launch_cmd "echo \"alias "$DEFAULT_SITE"_error='tail -f $APACHE_LOG_DIR$DEFAULT_SITE/error.log'\" >> "$SHELL_INIT
 
     # Create site vhost file
     mylog "[INFO] Creating virtualhost file: $SUBDOMAIN_SITE"    
@@ -136,9 +136,9 @@ function create_vhost_conf () {
 
 function create_logrotate_conf()
 {
-    cat $TEMPLATE_DIR"logrotate.tpl" | sed "s/\${HOST}/${DEFAULT_SITE}/" | sed "s|\${APACHE_LOG_DIR}|$APACHE_LOG_DIR|"   > "/tmp/logrotate${DEFAULT_SITE}"
-    launch_cmd "mv /tmp/logrotate${DEFAULT_SITE} /etc/logrotate.d/${DEFAULT_SITE}"
-    launch_cmd "logrotate -f  /etc/logrotate.conf"
+    #cat $TEMPLATE_DIR"logrotate.tpl" | sed "s/\${HOST}/${DEFAULT_SITE}/" | sed "s|\${APACHE_LOG_DIR}|$APACHE_LOG_DIR|"   > "/tmp/logrotate${DEFAULT_SITE}"
+    #launch_cmd "mv /tmp/logrotate${DEFAULT_SITE} /etc/logrotate.d/${DEFAULT_SITE}"
+    #launch_cmd "logrotate -f  /etc/logrotate.conf"
     
 }
 
@@ -516,4 +516,4 @@ if [ "$HTACCESS_CONFIG" != "" ]; then
 fi
 
 
-launch_cmd "cd && source .bashrc"
+launch_cmd "source "$SHELL_INIT
