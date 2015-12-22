@@ -111,9 +111,9 @@ function create_vhost_conf () {
         DEFAULT_SITE="$SUBDOMAIN.$HOST.$1"
     fi
     
-    launch_cmd "echo \"alias $DEFAULT_SITE='cd $APACHE_WEB_DIR$DEFAULT_SITE'\" >> ~/.bashrc "
-    launch_cmd "echo \"alias "$DEFAULT_SITE"_access='tail -f $APACHE_LOG_DIR$DEFAULT_SITE/access.log'\" >> ~/.bashrc "
-    launch_cmd "echo \"alias "$DEFAULT_SITE"_error='tail -f $APACHE_LOG_DIR$DEFAULT_SITE/error.log'\" >> ~/.bashrc "
+    launch_cmd "echo \"alias $DEFAULT_SITE='cd $APACHE_WEB_DIR$DEFAULT_SITE'\" >> "$SHELL_INIT
+    launch_cmd "echo \"alias "$DEFAULT_SITE"_access='tail -f $APACHE_LOG_DIR$DEFAULT_SITE/access.log'\" >> "$SHELL_INIT
+    launch_cmd "echo \"alias "$DEFAULT_SITE"_error='tail -f $APACHE_LOG_DIR$DEFAULT_SITE/error.log'\" >> "$SHELL_INIT
 
     # Create site vhost file
     mylog "[INFO] Creating virtualhost file: $SUBDOMAIN_SITE"    
@@ -516,4 +516,4 @@ if [ "$HTACCESS_CONFIG" != "" ]; then
 fi
 
 
-launch_cmd "cd && source .bashrc"
+launch_cmd "source "$SHELL_INIT
