@@ -38,6 +38,10 @@ function usage () {
     exit 1;
 }
 
+# ************************************************************** #
+# set language by default for doesn't to be impact by OS language
+export LANG=C
+
 
 # ************************************************************** #
 # Import project from FTP host/login/pwd => Mysql dump / Apache Vhost / Source download
