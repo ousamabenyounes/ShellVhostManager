@@ -140,9 +140,9 @@ function create_vhost_conf () {
 
 function create_logrotate_conf()
 {
-    cat $TEMPLATE_DIR"logrotate.tpl" | sed "s/\${HOST}/${DEFAULT_SITE}/" | sed "s|\${APACHE_LOG_DIR}|$APACHE_LOG_DIR|"   > "/tmp/logrotate${DEFAULT_SITE}"
-    launch_cmd "mv /tmp/logrotate${DEFAULT_SITE} /etc/logrotate.d/${DEFAULT_SITE}"
-    launch_cmd "logrotate -f  /etc/logrotate.conf"
+    #cat $TEMPLATE_DIR"logrotate.tpl" | sed "s/\${HOST}/${DEFAULT_SITE}/" | sed "s|\${APACHE_LOG_DIR}|$APACHE_LOG_DIR|"   > "/tmp/logrotate${DEFAULT_SITE}"
+    #launch_cmd "mv /tmp/logrotate${DEFAULT_SITE} /etc/logrotate.d/${DEFAULT_SITE}"
+    #launch_cmd "logrotate -f  /etc/logrotate.conf"
     
 }
 
